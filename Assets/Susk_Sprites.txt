@@ -8,6 +8,10 @@ idle[2]: src: 622, 204, 165, 79 foot: 66, 66 hurtbox: 59, 24, 96, 47
 idle[1]: src: 328, 205, 162, 79 foot: 66, 64 hurtbox: 52, 17, 101, 54
 idle[3]: src: 912, 205, 167, 78 foot: 72, 65 hurtbox: 64, 22, 92, 49
 idle[4]: src: 1208, 205, 163, 78 foot: 70, 65 hurtbox: 63, 25, 93, 45
+walk[0]:
+jump[0]:
+fall[0]:
+land[0]:
 attack[2]: src: 637, 319, 128, 99 foot: 124, 93 hurtbox: 28, 30, 89, 65
 attack[3]: src: 929, 329, 247, 99 foot: 128, 82 hurtbox: 67, 28, 97, 62 hitbox: 184, 65, 51, 30
 attack[1]: src: 327, 338, 151, 77 foot: 137, 73 hurtbox: 51, 15, 90, 61

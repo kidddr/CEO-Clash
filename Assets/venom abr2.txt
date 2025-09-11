@@ -32,6 +32,7 @@ fall[1]: src: 1112, 424, 131, 136 foot: 19, 130 anchor: 66, 48 hitbox: 36, 15, 7
 fall[2]: src: 1259, 436, 130, 144 foot: 18, 137 anchor: 64, 54 hitbox: 36, 21, 73, 68
 land[0]: src: 1416, 455, 129, 88 foot: 17, 86 anchor: 57, 39 hitbox: 16, 9, 92, 59
 land[1]: src: 1569, 463, 112, 82 foot: 16, 77 anchor: 55, 48 hitbox: 12, 17, 95, 56
+crouch[0]: src: 0, 0, 0, 0
 attack[0]: src: 18, 481, 131, 121 foot: 23, 119 anchor: 23, 119 hitbox: 24, 4, 71, 98
 attack[1]: src: 167, 514, 152, 129 foot: 16, 127 anchor: 16, 127 hitbox: 28, 14, 83, 96 hurtbox: 111, 0, 39, 73
 attack[2]: src: 349, 515, 264, 135 foot: 15, 133 anchor: 15, 133 hitbox: 27, 38, 129, 72 hurtbox: 156, 0, 106, 112
