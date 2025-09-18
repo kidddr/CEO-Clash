@@ -526,25 +526,42 @@ int main(int argc, char *argv[]){
 
         Fighter_control( &P2, p2u, p2d, p2l, p2r, p2_A );
         
-        /*
+        ///*
         // colisao entre os Fighters
-        if( SDL_FRect_overlap( &(P1.hitbox), &(P2.hitbox) ) ){
-            Fighter *LF;
-            Fighter *RF;
-            if( P1.pos.x < P2.pos.x ){
-                LF = &P1;
-                RF = &P2;
-            } else {
-                LF = &P2;
-                RF = &P1;
+        int frm1 = P1.state_frame_offsets[ P1.state ] + P1.frame;
+        int frm2 = P2.state_frame_offsets[ P2.state ] + P2.frame;
+        int P1hs = vector_size (P1.hitboxes[frm1]);
+        int P2hs = vector_size (P2.hitboxes[frm2]);
+
+        for(int i1 = 0; i1 < P1hs; i1++){
+            for(int i2 = 0; i2 < P2hs; i2++){
+                if( SDL_FRect_overlap(P1.hitboxes[frm1][i1], P2.hitboxes[frm2][i2] ) ){
+                    vec2d *LFpos;
+                    SDL_FRect *LFbox;
+                    vec2d *RFpos;
+                    SDL_FRect *RFbox;
+                    if( P1.pos.x < P2.pos.x ){
+                        LFbox = &(P1.hitboxes[frm1][i1]);
+                        RFbox = &(P2.hitboxes[frm2][i2]);
+                        LFpos = &(P1.pos);
+                        RFpos = &(P2.pos);
+                    } else {
+                        LFbox = &(P2.hitboxes[frm2][i2]);
+                        RFbox = &(P1.hitboxes[frm1][i1]);
+                        LFpos = &(P2.pos);
+                        RFpos = &(P1.pos);
+                    }
+                    int overlap = (LFbox->x + LFbox->w)-(RFbox->x);
+                    LFpos.x -= 0.5 * overlap;
+                    RFpos.x += 0.5 * overlap;
+                    LFbox->x = LFpos.x - 0.5 * LFbox->w;
+                    RFbox->x = RFpos.x - 0.5 * RFbox->w;
+                }   
             }
-            int overlap = (LF->hitbox.x + LF->hitbox.w)-(RF->hitbox.x);
-            LF->pos.x -= 0.5 * overlap;
-            RF->pos.x += 0.5 * overlap;
-            LF->hitbox.x = LF->pos.x - 0.5 * LF->hitbox.w;
-            RF->hitbox.x = RF->pos.x - 0.5 * RF->hitbox.w;
         }
-        */
+        
+
+
         if( SDL_GetTicks() >= next_ani_tick ){
             Fighter_tick_frame( &P1 );
             next_ani_tick = SDL_GetTicks() + animation_period;
