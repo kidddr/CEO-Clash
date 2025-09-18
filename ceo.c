@@ -27,7 +27,9 @@ float WALL_R = 0;
 float FLOOR_Y = 0;
 
 // STATES
+#define NUM_STATES 7
 enum{ IDLE, WALK, JUMP, FALL, LAND, CROUCH, ATTACK };
+const char state_names [NUM_STATES][24] = { "idle", "walk", "jump", "fall", "land", "crouch", "attack" };
 
 
 typedef struct {
@@ -69,86 +71,101 @@ void Fighter_load_spritesheet( SDL_Renderer *R, Fighter *F, char *filename ){
         F->anchors = NULL;
         F->hitboxes = NULL;
         F->hurtboxes = NULL;
-        F->state_frame_offsets = NULL;
 
-        char name [64];
-        name[0] = '\0';
+        struct tag_data std = tag_finder( d, state_names, NUM_STATES, -1 );
+
+        int state_counts [NUM_STATES];
+        SDL_memset4( state_counts, 0, NUM_STATES );
+        for (int S = 0; S < std.length; ++S){
+            if( std.indices[S] < 0 || std.indices[S] >= NUM_STATES ){
+                SDL_Log( "???? huh??" );
+                break;
+            }
+            state_counts[ std.indices[S] ] += 1;
+        }
+
+        F->state_frame_offsets = SDL_malloc( (NUM_STATES + 1) * sizeof(int) );
+        F->state_frame_offsets[0] = 0;
+        for (int s = 1; s < NUM_STATES; ++s ){
+            F->state_frame_offsets[s] = F->state_frame_offsets[s-1] + state_counts[s-1];
+            SDL_Log( "sfo[%d] = %d", s, F->state_frame_offsets[s] );
+        }
+        F->state_frame_offsets[NUM_STATES] = F->state_frame_offsets[NUM_STATES-1] + state_counts[NUM_STATES-1];
 
         int line = 0;
-        while( SDL_GetIOStatus(d) == SDL_IO_STATUS_READY ){
+        //while( SDL_GetIOStatus(d) == SDL_IO_STATUS_READY ){
+        for (int S = 0; S < NUM_STATES; ++S ){
+            for (int L = 0; L < std.length; ++L){
 
-            fscan_str_until( d, buf, 64, "[" );
-            if( SDL_GetIOStatus(d) != SDL_IO_STATUS_READY ) break;
-            if( SDL_strcmp( name, buf ) != 0 ){
-                vector_push( F->state_frame_offsets, line );
-            }
-            SDL_strlcpy( name, buf, 64 );
+            	if( std.indices[L] != S ) continue;
 
-            char tags [6][24] = { "\n", "src:", "foot:", "anchor:", "hitbox:", "hurtbox:" };
-            struct tag_data td = tag_finder( d, tags, 6, 0 );
+            	SDL_Log( "S:%d L:%d line:%d", S, L, line );
 
-            vector_push( F->srcs, ((SDL_FRect){-1,-1,-1,-1}) );
-            vector_push( F->anchors, v2d(-1,-1) );
-            vector_push( F->hitboxes, NULL );
-            vector_push( F->hurtboxes, NULL );
+                SDL_SeekIO( d, std.locations[L], SDL_IO_SEEK_SET );
+                //if( SDL_GetIOStatus(d) != SDL_IO_STATUS_READY ) break;
 
-            //SDL_Log(">%d tags\n", td.length );
+                const char tags [6][24] = { "\n", "src:", "foot:", "anchor:", "hitbox:", "hurtbox:" };
+                struct tag_data td = tag_finder( d, tags, 6, 0 );
 
-            for (int i = 0; i < td.length; ++i){
+                vector_push( F->srcs, ((SDL_FRect){-1,-1,-1,-1}) );
+                vector_push( F->anchors, v2d(-1,-1) );
+                vector_push( F->hitboxes, NULL );
+                vector_push( F->hurtboxes, NULL );
 
-                //SDL_Log("[%d]: %s\n", i, tags[ td.indices[i] ] );
-                SDL_SeekIO( d, td.locations[i], SDL_IO_SEEK_SET );
-                fscan_str_until_any( d, buf, buflen, ":\n" );
-                //SDL_Log("buf: %s\n", buf );
+                //SDL_Log(">%d tags\n", td.length );
 
-                switch( td.indices[i] ){
-                    case 1:{ // src:
-                        int x, y, w, h;
-                        int matches = SDL_sscanf( buf, "%d, %d, %d, %d", &x, &y, &w, &h );
-                        //SDL_Log("matches: %d\n", matches );
-                        if( matches == 4 ){
-                            F->srcs[line] = (SDL_FRect){x, y, w, h};
-                        } else SDL_Log( "Bad src matches!" );
-                    } break;
-                    case 2:{ // foot:
-                        int x, y;
-                        int matches = SDL_sscanf( buf, "%d, %d", &x, &y );
-                        //SDL_Log("matches: %d\n", matches );
-                        if( matches == 2 ){
-                            F->anchors[line] = v2d(x, y);
-                        } else SDL_Log( "Bad foot matches!" );
-                    } break;
-                    case 3:{ // anchor:
-                        
-                    } break;
-                    case 4:{ // hitbox:
-                        int x, y, w, h;
-                        int matches = SDL_sscanf( buf, "%d, %d, %d, %d",  &x, &y, &w, &h );
-                        if( matches == 4 ){
-                            vector_push( F->hitboxes[line], ((SDL_FRect){x, y, w, h}) );
-                        } else SDL_Log( "Bad hitbox matches!" );
-                    } break;
-                    case 5:{ // hurtbox:
-                        int x, y, w, h;
-                        int matches = SDL_sscanf( buf, "%d, %d, %d, %d",  &x, &y, &w, &h );
-                        if( matches == 4 ){
-                            vector_push( F->hurtboxes[line], ((SDL_FRect){x, y, w, h}) );
-                        } else SDL_Log( "Bad hurtbox matches!" );
-                    } break;
+                for (int i = 0; i < td.length; ++i){
+
+                    //SDL_Log("[%d]: %s\n", i, tags[ td.indices[i] ] );
+                    SDL_SeekIO( d, td.locations[i], SDL_IO_SEEK_SET );
+                    fscan_str_until_any( d, buf, buflen, ":\n" );
+                    //SDL_Log("buf: %s\n", buf );
+
+                    switch( td.indices[i] ){
+                        case 1:{ // src:
+                            int x, y, w, h;
+                            int matches = SDL_sscanf( buf, "%d, %d, %d, %d", &x, &y, &w, &h );
+                            //SDL_Log("matches: %d\n", matches );
+                            if( matches == 4 ){
+                                F->srcs[line] = (SDL_FRect){x, y, w, h};
+                            } else SDL_Log( "Bad src matches!" );
+                        } break;
+                        case 2:{ // foot:
+                            int x, y;
+                            int matches = SDL_sscanf( buf, "%d, %d", &x, &y );
+                            //SDL_Log("matches: %d\n", matches );
+                            if( matches == 2 ){
+                                F->anchors[line] = v2d(x, y);
+                            } else SDL_Log( "Bad foot matches!" );
+                        } break;
+                        case 3:{ // anchor:
+                            
+                        } break;
+                        case 4:{ // hitbox:
+                            int x, y, w, h;
+                            int matches = SDL_sscanf( buf, "%d, %d, %d, %d",  &x, &y, &w, &h );
+                            if( matches == 4 ){
+                                vector_push( F->hitboxes[line], ((SDL_FRect){x, y, w, h}) );
+                            } else SDL_Log( "Bad hitbox matches!" );
+                        } break;
+                        case 5:{ // hurtbox:
+                            int x, y, w, h;
+                            int matches = SDL_sscanf( buf, "%d, %d, %d, %d",  &x, &y, &w, &h );
+                            if( matches == 4 ){
+                                vector_push( F->hurtboxes[line], ((SDL_FRect){x, y, w, h}) );
+                            } else SDL_Log( "Bad hurtbox matches!" );
+                        } break;
+                    }
                 }
-            }
 
-            line++;
-            free_tag_data( &td );
+                line++;
+                free_tag_data( &td );
+            }
         }
+
+        free_tag_data( &std );
 
         SDL_CloseIO( d );
-
-        vector_push( F->state_frame_offsets, line );
-        int states_N = vector_size( F->state_frame_offsets );
-        for (int i = 0; i < states_N; ++i ){
-            SDL_Log("F->state_frame_offsets[%d]: %d\n", i, F->state_frame_offsets[i] );
-        }
     }
     else{
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to load \"%s\": %s.", filename, SDL_GetError());
