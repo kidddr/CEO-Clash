@@ -99,7 +99,7 @@ void Fighter_load_spritesheet( SDL_Renderer *R, Fighter *F, char *filename ){
 
             	if( std.indices[L] != S ) continue;
 
-            	SDL_Log( "S:%d L:%d line:%d", S, L, line );
+            	//SDL_Log( "S:%d L:%d line:%d", S, L, line );
 
                 SDL_SeekIO( d, std.locations[L], SDL_IO_SEEK_SET );
                 //if( SDL_GetIOStatus(d) != SDL_IO_STATUS_READY ) break;
@@ -291,13 +291,24 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA ){
     */
 }
 
+
+SDL_FRect get_Fighter_dstrct_now( Fighter *F ){
+    int frm = F->state_frame_offsets[ F->state ] + F->frame;
+    SDL_FRect dst = (SDL_FRect){ 0, F->pos.y - F->anchors[frm].y, F->srcs[frm].w, F->srcs[frm].h };
+    if( F->direcao < 0 ){
+        dst.x = F->pos.x + (2 * F->anchors[frm].x) - F->srcs[frm].w;
+    } else {
+        dst.x = F->pos.x - F->anchors[frm].x;
+    }
+    return dst;
+}
+
 void display_Fighter( SDL_Renderer *R, Fighter *F ){
     int flip = SDL_FLIP_NONE;
     if( F->direcao < 0 ) flip = SDL_FLIP_HORIZONTAL;
     int frm = F->state_frame_offsets[ F->state ] + F->frame;
     //SDL_Log( "%p: %d, %d", F, F->state, frm );
-    SDL_FRect dst = (SDL_FRect){ F->pos.x - F->anchors[frm].x, F->pos.y - F->anchors[frm].y, 
-                                 F->srcs[frm].w, F->srcs[frm].h };
+    SDL_FRect dst = get_Fighter_dstrct_now( F );
     SDL_RenderTextureRotated( R, F->spritesheet, F->srcs + frm, &dst, 0, NULL, flip );
 }
 
@@ -307,24 +318,27 @@ void display_Fighter_boxes( SDL_Renderer *R, Fighter *F ){
 
     SDL_SetRenderDrawColor( R, 0, 255, 0, 255 );
     for (int i = 0; i < hs; ++i){
-        SDL_FRect rct = (SDL_FRect){
-            .x = F->pos.x - F->anchors[frm].x + F->hitboxes[frm][i].x, 
-            .y = F->pos.y - F->anchors[frm].y + F->hitboxes[frm][i].y,
-            .w = F->hitboxes[frm][i].w,
-            .h = F->hitboxes[frm][i].h,
-        };
+        SDL_FRect rct = (SDL_FRect){ 0, F->pos.y - F->anchors[frm].y + F->hitboxes[frm][i].y,
+                                     F->hitboxes[frm][i].w,  F->hitboxes[frm][i].h };
+        if( F->direcao < 0 ){
+            rct.x = F->pos.x + (2 * F->anchors[frm].x) - F->hitboxes[frm][i].x - F->hitboxes[frm][i].w;
+        } else{
+            rct.x = F->pos.x - F->anchors[frm].x + F->hitboxes[frm][i].x; 
+        }
         SDL_RenderRect( R, &rct );
     }
 
     hs = vector_size( F->hurtboxes[frm] );
     SDL_SetRenderDrawColor( R, 255, 0, 0, 255 );
     for (int i = 0; i < hs; ++i){
-        SDL_FRect rct = (SDL_FRect){
-            .x = F->pos.x - F->anchors[frm].x + F->hurtboxes[frm][i].x, 
-            .y = F->pos.y - F->anchors[frm].y + F->hurtboxes[frm][i].y,
-            .w = F->hurtboxes[frm][i].w,
-            .h = F->hurtboxes[frm][i].h,
-        };
+        SDL_FRect rct = (SDL_FRect){ 0, F->pos.y - F->anchors[frm].y + F->hurtboxes[frm][i].y,
+                                     F->hurtboxes[frm][i].w,  F->hurtboxes[frm][i].h };
+        if( F->direcao < 0 ){
+            rct.x = F->pos.x + (2 * F->anchors[frm].x) - F->hurtboxes[frm][i].x - F->hurtboxes[frm][i].w;
+        } else{
+            rct.x = F->pos.x - F->anchors[frm].x + F->hurtboxes[frm][i].x;
+
+        }
         SDL_RenderRect( R, &rct );
     }
 }
@@ -554,7 +568,7 @@ int main(int argc, char *argv[]){
 
         Fighter_control( &P2, p2u, p2d, p2l, p2r, p2_A );
         
-        ///*
+        /*
         // colisao entre os Fighters
         int frm1 = P1.state_frame_offsets[ P1.state ] + P1.frame;
         int frm2 = P2.state_frame_offsets[ P2.state ] + P2.frame;
@@ -587,7 +601,7 @@ int main(int argc, char *argv[]){
                 }   
             }
         }
-        
+        */
 
 
         if( SDL_GetTicks() >= next_ani_tick ){
