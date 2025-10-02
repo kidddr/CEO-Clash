@@ -1,0 +1,19 @@
+crouch[3]: src: 914, 81, 180, 61 foot: 63, 49 hitbox: 58, 11, 109, 42
+crouch[4]: src: 1207, 81, 180, 62 foot: 65, 48 hitbox: 62, 16, 106, 36
+crouch[0]: src: 29, 82, 177, 61 foot: 63, 47 hitbox: 59, 20, 106, 30
+crouch[1]: src: 323, 82, 179, 60 foot: 63, 47 hitbox: 61, 15, 106, 35
+crouch[2]: src: 619, 82, 179, 60 foot: 62, 47 hitbox: 56, 17, 111, 33
+idle[0]: src: 31, 204, 163, 81 foot: 68, 67 hitbox: 57, 24, 93, 47
+idle[2]: src: 622, 204, 165, 79 foot: 66, 66 hitbox: 59, 24, 96, 47
+idle[1]: src: 328, 205, 162, 79 foot: 66, 64 hitbox: 52, 17, 101, 54
+idle[3]: src: 912, 205, 167, 78 foot: 72, 65 hitbox: 64, 22, 92, 49
+idle[4]: src: 1208, 205, 163, 78 foot: 70, 65 hitbox: 63, 25, 93, 45
+walk[0]:
+jump[0]:
+fall[0]:
+land[0]:
+attack[2]: src: 637, 319, 128, 99 foot: 124, 93 hitbox: 28, 30, 89, 65
+attack[3]: src: 929, 329, 247, 99 foot: 128, 82 hitbox: 67, 28, 97, 62 hurtbox: 184, 65, 51, 30
+attack[1]: src: 327, 338, 151, 77 foot: 137, 73 hitbox: 51, 15, 90, 61
+attack[0]: src: 34, 347, 161, 80 foot: 137, 64 hitbox: 57, 20, 94, 52
+attack[4]: src: 1227, 358, 221, 65 foot: 126, 54 hitbox: 63, 5, 103, 53 hurtbox: 174, 36, 48, 29
