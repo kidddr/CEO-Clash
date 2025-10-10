@@ -192,6 +192,9 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA ){
         if( cA && !Fighter_no_ar(F) ){
             F->state = ATTACK; F->frame = 0;
         }
+        if( cd && !Fighter_no_ar(F) ){
+            F->state = CROUCH; F->frame = 0;
+        }
     }
 
 
@@ -241,10 +244,7 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA ){
             break;
 
         case CROUCH:
-            if(cd){
-            F->state = CROUCH; F->frame = 0;
-        }
-
+            
             break;
 
         case ATTACK:
@@ -354,6 +354,8 @@ void Fighter_tick_frame( Fighter *F ){
         switch( F->state ){
             case IDLE:
             case CROUCH:
+                F->state = IDLE; F->frame = 0;
+                break;
             case WALK:// Loop animation
                 F->frame = 0;
                 break;
@@ -425,37 +427,6 @@ int main(int argc, char *argv[]){
     float fundo5w, fundo5h;
     SDL_GetTextureSize(Fundo5, &fundo5w, &fundo5h);
     
-
-
-
-     /*TEXTURAS PERSONAGENS
-
-    SDL_Texture *Piwis = IMG_LoadTexture(R, "Assets/Pinto_outline.png");
-    float fw, fh;
-    SDL_GetTextureSize(Piwis, &fw, &fh);
-
-    Transform T = (Transform){256,256,cx,cy,1,1};
-    int scaleI = 0;
-
-    SDL_Texture *Piwispez = IMG_LoadTexture(R, "Assets/piwispez.png");
-    SDL_GetTextureSize(Piwispez, &fw, &fh);
-
-
-
-    SDL_Texture *Melon = IMG_LoadTexture(R, "Assets/Sus.png");
-    float cyberw, cyberh;
-    SDL_GetTextureSize(Melon, &cyberw, &cyberh);
-
-    Transform I = (Transform){256,256,c2x,c2y,1,1};
-    int scaleT = 0;
-    
-    SDL_Texture *pat1 = IMG_LoadTexture(R,"Assets/piwisAT1.png");
-    float pat1w, pat1h;
-    SDL_GetTextureSize(pat1, &pat1w, &pat1h);*/
-
-
-
-
     SDL_Texture *Fundo6 = IMG_LoadTexture(R,"Assets/pred6.png");
     float fundo6w, fundo6h;
     SDL_GetTextureSize(Fundo6, &fundo6w, &fundo6h);
@@ -632,8 +603,8 @@ int main(int argc, char *argv[]){
         //else if( P2.direcao < 0 ) flip2 = 0;
         //SDL_RenderTextureRotated(R, Melon, NULL, &(P2.hitbox), 0, NULL, flip2);
     
-        SDL_FRect fundo6dest = {0,0,width,height};
-        SDL_RenderTexture(R, Fundo6, NULL, &fundo6dest);
+       // SDL_FRect fundo6dest = {0,0,width,height};
+        //SDL_RenderTexture(R, Fundo6, NULL, &fundo6dest);
 
         
         SDL_RenderPresent(R);

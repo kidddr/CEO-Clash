@@ -3,6 +3,11 @@ crouch[4]: src: 1207, 81, 180, 62 foot: 65, 48 hitbox: 62, 16, 106, 36
 crouch[0]: src: 29, 82, 177, 61 foot: 63, 47 hitbox: 59, 20, 106, 30
 crouch[1]: src: 323, 82, 179, 60 foot: 63, 47 hitbox: 61, 15, 106, 35
 crouch[2]: src: 619, 82, 179, 60 foot: 62, 47 hitbox: 56, 17, 111, 33
+walk[0]: src: 51, 496, 171, 74 foot: 47, 61 hitbox: 6, 0, 158, 62
+walk[1]: src: 349, 497, 142, 68 foot: 47, 52 hitbox: 2, 4, 138, 57
+walk[2]: src: 639, 493, 148, 69 foot: 51, 59 hitbox: 6, 8, 139, 56
+walk[3]: src: 917, 494, 168, 65 foot: 73, 55 hitbox: 8, 2, 158, 58
+walk[4]: src: 1215, 500, 193, 67 foot: 69, 55 hitbox: 3, 3, 186, 56
 idle[0]: src: 31, 204, 163, 81 foot: 68, 67 hitbox: 57, 24, 93, 47
 idle[2]: src: 622, 204, 165, 79 foot: 66, 66 hitbox: 59, 24, 96, 47
 idle[1]: src: 328, 205, 162, 79 foot: 66, 64 hitbox: 52, 17, 101, 54
