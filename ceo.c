@@ -38,8 +38,8 @@ typedef struct {
 
     SDL_FRect  *srcs;
     vec2d *anchors;
-    SDL_FRect **hitboxes;
-    SDL_FRect **hurtboxes;
+    SDL_FRect **hitboxes; // Onde eu RECEBO hits
+    SDL_FRect **hurtboxes; // onde eu MACHUCO os outros
 
     int state;
     int *state_frame_offsets; // aonde comeca os frames desse estado
@@ -99,7 +99,7 @@ void Fighter_load_spritesheet( SDL_Renderer *R, Fighter *F, char *filename ){
 
             	if( std.indices[L] != S ) continue;
 
-            	SDL_Log( "S:%d L:%d line:%d", S, L, line );
+            	//SDL_Log( "S:%d L:%d line:%d", S, L, line );
 
                 SDL_SeekIO( d, std.locations[L], SDL_IO_SEEK_SET );
                 //if( SDL_GetIOStatus(d) != SDL_IO_STATUS_READY ) break;
@@ -192,6 +192,9 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA ){
         if( cA && !Fighter_no_ar(F) ){
             F->state = ATTACK; F->frame = 0;
         }
+        if( cd && !Fighter_no_ar(F) ){
+            F->state = CROUCH; F->frame = 0;
+        }
     }
 
 
@@ -241,10 +244,7 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA ){
             break;
 
         case CROUCH:
-            if(cd){
-            F->state = CROUCH; F->frame = 0;
-        }
-
+            
             break;
 
         case ATTACK:
@@ -291,14 +291,56 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA ){
     */
 }
 
+
+SDL_FRect get_Fighter_dstrct_now( Fighter *F ){
+    int frm = F->state_frame_offsets[ F->state ] + F->frame;
+    SDL_FRect dst = (SDL_FRect){ 0, F->pos.y - F->anchors[frm].y, F->srcs[frm].w, F->srcs[frm].h };
+    if( F->direcao < 0 ){
+        dst.x = F->pos.x + (2 * F->anchors[frm].x) - F->srcs[frm].w;
+    } else {
+        dst.x = F->pos.x - F->anchors[frm].x;
+    }
+    return dst;
+}
+
 void display_Fighter( SDL_Renderer *R, Fighter *F ){
     int flip = SDL_FLIP_NONE;
     if( F->direcao < 0 ) flip = SDL_FLIP_HORIZONTAL;
     int frm = F->state_frame_offsets[ F->state ] + F->frame;
     //SDL_Log( "%p: %d, %d", F, F->state, frm );
-    SDL_FRect dst = (SDL_FRect){ F->pos.x - F->anchors[frm].x, F->pos.y - F->anchors[frm].y, 
-                                 F->srcs[frm].w, F->srcs[frm].h };
+    SDL_FRect dst = get_Fighter_dstrct_now( F );
     SDL_RenderTextureRotated( R, F->spritesheet, F->srcs + frm, &dst, 0, NULL, flip );
+}
+
+void display_Fighter_boxes( SDL_Renderer *R, Fighter *F ){
+    int frm = F->state_frame_offsets[ F->state ] + F->frame;
+    int hs = vector_size( F->hitboxes[frm] );
+
+    SDL_SetRenderDrawColor( R, 0, 255, 0, 255 );
+    for (int i = 0; i < hs; ++i){
+        SDL_FRect rct = (SDL_FRect){ 0, F->pos.y - F->anchors[frm].y + F->hitboxes[frm][i].y,
+                                     F->hitboxes[frm][i].w,  F->hitboxes[frm][i].h };
+        if( F->direcao < 0 ){
+            rct.x = F->pos.x + (2 * F->anchors[frm].x) - F->hitboxes[frm][i].x - F->hitboxes[frm][i].w;
+        } else{
+            rct.x = F->pos.x - F->anchors[frm].x + F->hitboxes[frm][i].x; 
+        }
+        SDL_RenderRect( R, &rct );
+    }
+
+    hs = vector_size( F->hurtboxes[frm] );
+    SDL_SetRenderDrawColor( R, 255, 0, 0, 255 );
+    for (int i = 0; i < hs; ++i){
+        SDL_FRect rct = (SDL_FRect){ 0, F->pos.y - F->anchors[frm].y + F->hurtboxes[frm][i].y,
+                                     F->hurtboxes[frm][i].w,  F->hurtboxes[frm][i].h };
+        if( F->direcao < 0 ){
+            rct.x = F->pos.x + (2 * F->anchors[frm].x) - F->hurtboxes[frm][i].x - F->hurtboxes[frm][i].w;
+        } else{
+            rct.x = F->pos.x - F->anchors[frm].x + F->hurtboxes[frm][i].x;
+
+        }
+        SDL_RenderRect( R, &rct );
+    }
 }
 
 
@@ -306,12 +348,14 @@ void Fighter_tick_frame( Fighter *F ){
 
     F->frame += 1;
 
-    if( F->state == ATTACK ) SDL_Log( "%d - %d - %d", F->frame, F->state_frame_offsets[ F->state + 1 ], F->state_frame_offsets[ F->state ] );
+    //if( F->state == ATTACK ) SDL_Log( "%d - %d - %d", F->frame, F->state_frame_offsets[ F->state + 1 ], F->state_frame_offsets[ F->state ] );
     if( F->frame >= F->state_frame_offsets[ F->state + 1 ] - F->state_frame_offsets[ F->state ] ){
         
         switch( F->state ){
             case IDLE:
             case CROUCH:
+                F->state = IDLE; F->frame = 0;
+                break;
             case WALK:// Loop animation
                 F->frame = 0;
                 break;
@@ -383,37 +427,6 @@ int main(int argc, char *argv[]){
     float fundo5w, fundo5h;
     SDL_GetTextureSize(Fundo5, &fundo5w, &fundo5h);
     
-
-
-
-     /*TEXTURAS PERSONAGENS
-
-    SDL_Texture *Piwis = IMG_LoadTexture(R, "Assets/Pinto_outline.png");
-    float fw, fh;
-    SDL_GetTextureSize(Piwis, &fw, &fh);
-
-    Transform T = (Transform){256,256,cx,cy,1,1};
-    int scaleI = 0;
-
-    SDL_Texture *Piwispez = IMG_LoadTexture(R, "Assets/piwispez.png");
-    SDL_GetTextureSize(Piwispez, &fw, &fh);
-
-
-
-    SDL_Texture *Melon = IMG_LoadTexture(R, "Assets/Sus.png");
-    float cyberw, cyberh;
-    SDL_GetTextureSize(Melon, &cyberw, &cyberh);
-
-    Transform I = (Transform){256,256,c2x,c2y,1,1};
-    int scaleT = 0;
-    
-    SDL_Texture *pat1 = IMG_LoadTexture(R,"Assets/piwisAT1.png");
-    float pat1w, pat1h;
-    SDL_GetTextureSize(pat1, &pat1w, &pat1h);*/
-
-
-
-
     SDL_Texture *Fundo6 = IMG_LoadTexture(R,"Assets/pred6.png");
     float fundo6w, fundo6h;
     SDL_GetTextureSize(Fundo6, &fundo6w, &fundo6h);
@@ -526,16 +539,16 @@ int main(int argc, char *argv[]){
 
         Fighter_control( &P2, p2u, p2d, p2l, p2r, p2_A );
         
-        ///*
+        /*
         // colisao entre os Fighters
         int frm1 = P1.state_frame_offsets[ P1.state ] + P1.frame;
         int frm2 = P2.state_frame_offsets[ P2.state ] + P2.frame;
-        int P1hs = vector_size (P1.hitboxes[frm1]);
-        int P2hs = vector_size (P2.hitboxes[frm2]);
+        int P1hs = vector_size( P1.hitboxes[frm1] );
+        int P2hs = vector_size( P2.hitboxes[frm2] );
 
         for(int i1 = 0; i1 < P1hs; i1++){
             for(int i2 = 0; i2 < P2hs; i2++){
-                if( SDL_FRect_overlap(P1.hitboxes[frm1][i1], P2.hitboxes[frm2][i2] ) ){
+                if( SDL_FRect_overlap( P1.hitboxes[frm1] + i1, P2.hitboxes[frm2] + i2 ) ){
                     vec2d *LFpos;
                     SDL_FRect *LFbox;
                     vec2d *RFpos;
@@ -552,14 +565,14 @@ int main(int argc, char *argv[]){
                         RFpos = &(P1.pos);
                     }
                     int overlap = (LFbox->x + LFbox->w)-(RFbox->x);
-                    LFpos.x -= 0.5 * overlap;
-                    RFpos.x += 0.5 * overlap;
-                    LFbox->x = LFpos.x - 0.5 * LFbox->w;
-                    RFbox->x = RFpos.x - 0.5 * RFbox->w;
+                    LFpos->x -= 0.5 * overlap;
+                    RFpos->x += 0.5 * overlap;
+                    LFbox->x = LFpos->x - 0.5 * LFbox->w;
+                    RFbox->x = RFpos->x - 0.5 * RFbox->w;
                 }   
             }
         }
-        
+        */
 
 
         if( SDL_GetTicks() >= next_ani_tick ){
@@ -570,8 +583,8 @@ int main(int argc, char *argv[]){
             next_ani_tick = SDL_GetTicks() + animation_period;
         }
 
-        display_Fighter( R, &P1 );
-        display_Fighter( R, &P2 );
+        display_Fighter( R, &P1 ); display_Fighter_boxes( R, &P1 );
+        display_Fighter( R, &P2 ); display_Fighter_boxes( R, &P2 );
 
         /*if( SDL_GetTicks() >= next_ani_tick ){
             Fighter_tick_frame( &P1 );
@@ -590,8 +603,8 @@ int main(int argc, char *argv[]){
         //else if( P2.direcao < 0 ) flip2 = 0;
         //SDL_RenderTextureRotated(R, Melon, NULL, &(P2.hitbox), 0, NULL, flip2);
     
-        SDL_FRect fundo6dest = {0,0,width,height};
-        SDL_RenderTexture(R, Fundo6, NULL, &fundo6dest);
+       // SDL_FRect fundo6dest = {0,0,width,height};
+        //SDL_RenderTexture(R, Fundo6, NULL, &fundo6dest);
 
         
         SDL_RenderPresent(R);
