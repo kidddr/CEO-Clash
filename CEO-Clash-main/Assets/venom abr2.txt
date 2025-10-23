@@ -1,0 +1,43 @@
+idle[0]: src: 0, 0, 131, 117 foot: 17, 116 anchor: 17, 116 hitbox: 25, 27, 82, 69
+idle[1]: src: 145, 10, 141, 107 foot: 17, 106 anchor: 17, 106 hitbox: 23, 19, 86, 67
+idle[2]: src: 308, 14, 150, 103 foot: 17, 102 anchor: 17, 102 hitbox: 21, 15, 99, 68
+idle[3]: src: 486, 25, 151, 92 foot: 17, 91 anchor: 17, 91 hitbox: 51, 5, 83, 29 hitbox: 14, 34, 81, 52
+idle[4]: src: 670, 26, 153, 91 foot: 17, 90 anchor: 17, 90 hitbox: 47, 4, 82, 33 hitbox: 13, 37, 84, 47
+idle[5]: src: 854, 29, 151, 88 foot: 17, 87 anchor: 17, 87 hitbox: 45, 1, 80, 33 hitbox: 15, 34, 82, 47
+idle[6]: src: 1037, 30, 140, 87 foot: 17, 86 anchor: 17, 86 hitbox: 39, 0, 78, 33 hitbox: 13, 33, 80, 46
+idle[7]: src: 1182, 30, 142, 86 foot: 17, 85 anchor: 17, 85 hitbox: 36, 2, 76, 30 hitbox: 11, 32, 83, 46
+idle[8]: src: 1346, 33, 144, 88 foot: 17, 87 anchor: 17, 87 hitbox: 14, 6, 91, 74
+idle[9]: src: 1511, 35, 151, 92 foot: 17, 91 anchor: 17, 91 hitbox: 12, 10, 89, 75
+idle[10]: src: 1682, 36, 142, 98 foot: 17, 97 anchor: 17, 97 hitbox: 10, 16, 92, 76
+idle[11]: src: 1844, 38, 151, 104 foot: 17, 103 anchor: 17, 103 hitbox: 10, 21, 94, 78
+idle[12]: src: 2015, 44, 144, 111 foot: 17, 110 anchor: 17, 110 hitbox: 11, 25, 98, 80
+walk[0]: src: 5, 164, 148, 112 foot: 18, 110 anchor: 104, 100 hitbox: 26, 0, 86, 97
+walk[1]: src: 179, 171, 134, 113 foot: 11, 111 anchor: 91, 102 hitbox: 31, 6, 74, 91
+walk[2]: src: 334, 178, 120, 111 foot: 0, 108 anchor: 62, 103 hitbox: 17, 5, 83, 93
+walk[3]: src: 480, 193, 97, 111 foot:  18, 106 anchor: 15, 104 hitbox: 4, 3, 78, 101
+walk[4]: src: 595, 201, 126, 112 foot: 10, 110 anchor: 8, 105 hitbox: 23, 3, 83, 93
+walk[5]: src: 759, 216, 149, 113 foot: 16, 109 anchor: 0, 104 hitbox: 18, 1, 101, 98
+walk[6]: src: 935, 233, 130, 115 foot: 11, 112 anchor: -15, 106 hitbox: 23, 0, 88, 102
+walk[7]: src: 1091, 245, 98, 116 foot:  3, 112 anchor: -57, 107 hitbox: 27, 30, 0, 0 hitbox: 11, 1, 84, 104
+walk[8]: src: 1223, 262, 104, 115 foot: 1, 112 anchor: -89, 106 hitbox: 9, 1, 85, 100
+walk[9]: src: 1356, 279, 129, 113 foot: 22, 111 anchor: -95, 104 hitbox: 21, 1, 95, 91
+jump[0]: src: 5, 307, 129, 88 foot: 17, 86 anchor: 59, 39 hitbox: 13, 7, 98, 71
+jump[1]: src: 157, 321, 133, 153 foot: 33, 148 anchor: 90, 61 hitbox: 59, 0, 51, 126
+jump[2]: src: 315, 330, 127, 162 foot: 29, 155 anchor: 85, 65 hitbox: 56, 1, 49, 134
+jump[3]: src: 480, 342, 153, 111 foot: 27, 105 anchor: 70, 42 hitbox: 33, 5, 89, 59
+jump[4]: src: 656, 360, 133, 103 foot: 16, 96 anchor: 61, 46 hitbox: 29, 12, 83, 61
+jump[5]: src: 809, 372, 115, 85 foot: 11, 79 anchor: 51, 45 hitbox: 21, 12, 81, 49
+fall[0]: src: 949, 389, 133, 103 foot: 18, 98 anchor: 61, 46 hitbox: 31, 14, 82, 58
+fall[1]: src: 1112, 424, 131, 136 foot: 19, 130 anchor: 66, 48 hitbox: 36, 15, 74, 69
+fall[2]: src: 1259, 436, 130, 144 foot: 18, 137 anchor: 64, 54 hitbox: 36, 21, 73, 68
+land[0]: src: 1416, 455, 129, 88 foot: 17, 86 anchor: 57, 39 hitbox: 16, 9, 92, 59
+land[1]: src: 1569, 463, 112, 82 foot: 16, 77 anchor: 55, 48 hitbox: 12, 17, 95, 56
+crouch[0]: src: 0, 0, 0, 0
+attack[0]: src: 18, 481, 131, 121 foot: 23, 119 anchor: 23, 119 hitbox: 24, 4, 71, 98
+attack[1]: src: 167, 514, 152, 129 foot: 16, 127 anchor: 16, 127 hitbox: 28, 14, 83, 96 hurtbox: 111, 0, 39, 73
+attack[2]: src: 349, 515, 264, 135 foot: 15, 133 anchor: 15, 133 hitbox: 27, 38, 129, 72 hurtbox: 156, 0, 106, 112
+attack[3]: src: 639, 516, 315, 98 foot: 14, 96 anchor: 14, 96 hitbox: 29, 1, 116, 79 hurtbox: 144, -1, 171, 50
+attack[4]: src: 968, 589, 288, 105 foot: 15, 103 anchor: 15, 103 hurtbox: 147, 0, 134, 51 hitbox: 45, 0, 102, 87
+attack[5]: src: 1298, 615, 207, 124 foot: 16, 122 anchor: 16, 122 hitbox: 11, 6, 84, 96
+attack[6]: src: 1536, 635, 126, 118 foot: 25, 116 anchor: 25, 116 hitbox: 13, 23, 92, 78
+attack[7]: src: 1698, 651, 138, 102 foot: 24, 100 anchor: 24, 100 hitbox: 15, 15, 99, 74
