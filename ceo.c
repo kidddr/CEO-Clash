@@ -104,7 +104,7 @@ void Fighter_load_spritesheet( SDL_Renderer *R, Fighter *F, char *filename ){
                 SDL_SeekIO( d, std.locations[L], SDL_IO_SEEK_SET );
                 //if( SDL_GetIOStatus(d) != SDL_IO_STATUS_READY ) break;
 
-                const char tags [6][24] = { "\n", "src:", "foot:", "anchor:", "hitbox:", "hurtbox:" };
+                const char tags [6][24] = { "\n", "src:", "anchor:", "hitbox:", "hurtbox:" };
                 struct tag_data td = tag_finder( d, tags, 6, 0 );
 
                 vector_push( F->srcs, ((SDL_FRect){-1,-1,-1,-1}) );
@@ -130,7 +130,7 @@ void Fighter_load_spritesheet( SDL_Renderer *R, Fighter *F, char *filename ){
                                 F->srcs[line] = (SDL_FRect){x, y, w, h};
                             } else SDL_Log( "Bad src matches!" );
                         } break;
-                        case 2:{ // foot:
+                        case 2:{ // anchor:
                             int x, y;
                             int matches = SDL_sscanf( buf, "%d, %d", &x, &y );
                             //SDL_Log("matches: %d\n", matches );
@@ -138,17 +138,14 @@ void Fighter_load_spritesheet( SDL_Renderer *R, Fighter *F, char *filename ){
                                 F->anchors[line] = v2d(x, y);
                             } else SDL_Log( "Bad foot matches!" );
                         } break;
-                        case 3:{ // anchor:
-                            
-                        } break;
-                        case 4:{ // hitbox:
+                        case 3:{ // hitbox:
                             int x, y, w, h;
                             int matches = SDL_sscanf( buf, "%d, %d, %d, %d",  &x, &y, &w, &h );
                             if( matches == 4 ){
                                 vector_push( F->hitboxes[line], ((SDL_FRect){x, y, w, h}) );
                             } else SDL_Log( "Bad hitbox matches!" );
                         } break;
-                        case 5:{ // hurtbox:
+                        case 4:{ // hurtbox:
                             int x, y, w, h;
                             int matches = SDL_sscanf( buf, "%d, %d, %d, %d",  &x, &y, &w, &h );
                             if( matches == 4 ){
@@ -179,6 +176,11 @@ bool Fighter_no_ar( Fighter *F ){
 void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA ){
 
     vec2d desloc = v2dzero;
+
+    if(cr && cl){
+        cr = false;
+        cl = false;
+    }
 
     // can we jump or attack?
     if( F->state == IDLE || F->state == WALK ){
@@ -347,8 +349,8 @@ void display_Fighter_boxes( SDL_Renderer *R, Fighter *F ){
 void Fighter_tick_frame( Fighter *F ){
 
     F->frame += 1;
-
-    //if( F->state == ATTACK ) SDL_Log( "%d - %d - %d", F->frame, F->state_frame_offsets[ F->state + 1 ], F->state_frame_offsets[ F->state ] );
+    int frm = F->state_frame_offsets[ F->state ] + F->frame;
+    //SDL_Log( "%d: %d - %d - %d - %g",F->state, F->frame, F->state_frame_offsets[ F->state + 1 ], F->state_frame_offsets[ F->state ], F->srcs[frm].x );
     if( F->frame >= F->state_frame_offsets[ F->state + 1 ] - F->state_frame_offsets[ F->state ] ){
         
         switch( F->state ){
@@ -447,7 +449,7 @@ int main(int argc, char *argv[]){
     Fighter P2 = {0};
 
 
-    Fighter_load_spritesheet( R, &P2, "Assets/venom abr2" );
+    Fighter_load_spritesheet( R, &P2, "Assets/ba tt" );
     P2.pos = v2d( width-100, FLOOR_Y );
     P2.walkspeed = 5;
     P2.jumppower = -30;
