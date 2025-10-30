@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-
 #include <SDL.h>
 #include <SDL_image.h>
 #include "basics.h"
@@ -449,7 +448,7 @@ int main(int argc, char *argv[]){
     Fighter P2 = {0};
 
 
-    Fighter_load_spritesheet( R, &P2, "Assets/ba tt" );
+    Fighter_load_spritesheet( R, &P2, "Assets/BA" );
     P2.pos = v2d( width-100, FLOOR_Y );
     P2.walkspeed = 5;
     P2.jumppower = -30;
