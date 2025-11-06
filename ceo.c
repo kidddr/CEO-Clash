@@ -27,8 +27,8 @@ float FLOOR_Y = 0;
 
 // STATES
 #define NUM_STATES 7
-enum{ IDLE, WALK, JUMP, FALL, LAND, CROUCH, ATTACK };
-const char state_names [NUM_STATES][24] = { "idle", "walk", "jump", "fall", "land", "crouch", "attack" };
+enum{ IDLE, WALK, JUMP, FALL, LAND, CROUCH, ATTACK, HURT };
+const char state_names [NUM_STATES][24] = { "idle", "walk", "jump", "fall", "land", "crouch", "attack", "hurt" };
 
 
 typedef struct {
@@ -251,6 +251,11 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA ){
         case ATTACK:
     
             break;
+
+        case HURT:
+            
+
+            break;
     }
     
 
@@ -303,6 +308,46 @@ SDL_FRect get_Fighter_dstrct_now( Fighter *F ){
     }
     return dst;
 }
+
+SDL_FRect get_Fighter_boundingbox_now( Fighter *F ){
+    int frm = F->state_frame_offsets[ F->state ] + F->frame;
+    SDL_FRect box;
+    int hs = vector_size( F->hitboxes[frm] );
+    if( hs == 1 ){
+        box = F->hitboxes[frm][0];
+        if( F->direcao < 0 ){
+            box.x = F->pos.x + (2 * F->anchors[frm].x) - F->hitboxes[frm][0].x - F->hitboxes[frm][0].w;
+        } else{
+            box.x = F->pos.x - F->anchors[frm].x + F->hitboxes[frm][0].x; 
+        }
+        box.y = F->pos.y - F->anchors[frm].y + F->hitboxes[frm][0].y;
+    }
+    else{
+        for (int i = 0; i < hs; ++i){
+            //agregar todos os boxes
+        }
+    }
+
+    hs = vector_size( F->hurtboxes[frm] );
+    if( hs == 1 ){
+        box = F->hurtboxes[frm][0];
+        if( F->direcao < 0 ){
+            box.x = F->pos.x + (2 * F->anchors[frm].x) - F->hurtboxes[frm][0].x - F->hurtboxes[frm][0].w;
+        } else{
+            box.x = F->pos.x - F->anchors[frm].x + F->hurtboxes[frm][0].x; 
+        }
+        box.y = F->pos.y - F->anchors[frm].y + F->hurtboxes[frm][0].y;
+    }
+    else{
+        for (int i = 0; i < hs; ++i){
+            //agregar todos os boxes
+        }
+    }
+
+    return box;
+}
+
+
 
 void display_Fighter( SDL_Renderer *R, Fighter *F ){
     int flip = SDL_FLIP_NONE;
@@ -369,6 +414,9 @@ void Fighter_tick_frame( Fighter *F ){
             default:// just stay in the last frame
                 F->frame -= 1;
                 break;
+
+            case HURT:
+
         }
     }
 }
@@ -450,7 +498,7 @@ int main(int argc, char *argv[]){
 
     Fighter_load_spritesheet( R, &P2, "Assets/BA" );
     P2.pos = v2d( width-100, FLOOR_Y );
-    P2.walkspeed = 5;
+    P2.walkspeed = 4;
     P2.jumppower = -30;
     P2.direcao = 1;
 
@@ -540,40 +588,33 @@ int main(int argc, char *argv[]){
 
         Fighter_control( &P2, p2u, p2d, p2l, p2r, p2_A );
         
-        /*
         // colisao entre os Fighters
-        int frm1 = P1.state_frame_offsets[ P1.state ] + P1.frame;
-        int frm2 = P2.state_frame_offsets[ P2.state ] + P2.frame;
-        int P1hs = vector_size( P1.hitboxes[frm1] );
-        int P2hs = vector_size( P2.hitboxes[frm2] );
+        SDL_FRect P1bbox = get_Fighter_boundingbox_now( &P1 );
+        SDL_FRect P2bbox = get_Fighter_boundingbox_now( &P2 );
 
-        for(int i1 = 0; i1 < P1hs; i1++){
-            for(int i2 = 0; i2 < P2hs; i2++){
-                if( SDL_FRect_overlap( P1.hitboxes[frm1] + i1, P2.hitboxes[frm2] + i2 ) ){
-                    vec2d *LFpos;
-                    SDL_FRect *LFbox;
-                    vec2d *RFpos;
-                    SDL_FRect *RFbox;
-                    if( P1.pos.x < P2.pos.x ){
-                        LFbox = &(P1.hitboxes[frm1][i1]);
-                        RFbox = &(P2.hitboxes[frm2][i2]);
-                        LFpos = &(P1.pos);
-                        RFpos = &(P2.pos);
-                    } else {
-                        LFbox = &(P2.hitboxes[frm2][i2]);
-                        RFbox = &(P1.hitboxes[frm1][i1]);
-                        LFpos = &(P2.pos);
-                        RFpos = &(P1.pos);
-                    }
-                    int overlap = (LFbox->x + LFbox->w)-(RFbox->x);
-                    LFpos->x -= 0.5 * overlap;
-                    RFpos->x += 0.5 * overlap;
-                    LFbox->x = LFpos->x - 0.5 * LFbox->w;
-                    RFbox->x = RFpos->x - 0.5 * RFbox->w;
-                }   
+        if( SDL_FRect_overlap( &P1bbox, &P2bbox ) ){
+            vec2d *LFpos;
+            SDL_FRect *LFbox;
+            vec2d *RFpos;
+            SDL_FRect *RFbox;
+            if( P1.pos.x < P2.pos.x ){
+                LFbox = &(P1bbox);
+                RFbox = &(P2bbox);
+                LFpos = &(P1.pos);
+                RFpos = &(P2.pos);
+            } else {
+                LFbox = &(P2bbox);
+                RFbox = &(P1bbox);
+                LFpos = &(P2.pos);
+                RFpos = &(P1.pos);
             }
+            float overlap = (LFbox->x + LFbox->w)-(RFbox->x);
+            //SDL_Log( "Overlap! (%g + %g) - %g = %g", LFbox->x, LFbox->w, RFbox->x, overlap );
+            LFpos->x -= 0.5 * overlap;
+            RFpos->x += 0.5 * overlap;
+            //LFbox->x = LFpos->x - 0.5 * LFbox->w;
+            //RFbox->x = RFpos->x - 0.5 * RFbox->w;
         }
-        */
 
 
         if( SDL_GetTicks() >= next_ani_tick ){
