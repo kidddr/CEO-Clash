@@ -26,9 +26,9 @@ float WALL_R = 0;
 float FLOOR_Y = 0;
 
 // STATES
-#define NUM_STATES 7
-enum{ IDLE, WALK, JUMP, FALL, LAND, CROUCH, ATTACK, HURT };
-const char state_names [NUM_STATES][24] = { "idle", "walk", "jump", "fall", "land", "crouch", "attack", "hurt" };
+#define NUM_STATES 8
+enum{ IDLE, WALK, JUMP, FALL, LAND, CROUCH, ATTACK, BEATEN };
+const char state_names [NUM_STATES][24] = { "idle", "walk", "jump", "fall", "land", "crouch", "attack", "beaten" };
 
 
 typedef struct {
@@ -87,7 +87,7 @@ void Fighter_load_spritesheet( SDL_Renderer *R, Fighter *F, char *filename ){
         F->state_frame_offsets[0] = 0;
         for (int s = 1; s < NUM_STATES; ++s ){
             F->state_frame_offsets[s] = F->state_frame_offsets[s-1] + state_counts[s-1];
-            SDL_Log( "sfo[%d] = %d", s, F->state_frame_offsets[s] );
+            //SDL_Log( "sfo[%d] = %d", s, F->state_frame_offsets[s] );
         }
         F->state_frame_offsets[NUM_STATES] = F->state_frame_offsets[NUM_STATES-1] + state_counts[NUM_STATES-1];
 
@@ -103,7 +103,7 @@ void Fighter_load_spritesheet( SDL_Renderer *R, Fighter *F, char *filename ){
                 SDL_SeekIO( d, std.locations[L], SDL_IO_SEEK_SET );
                 //if( SDL_GetIOStatus(d) != SDL_IO_STATUS_READY ) break;
 
-                const char tags [6][24] = { "\n", "src:", "anchor:", "hitbox:", "hurtbox:" };
+                const char tags [5][24] = { "\n", "src:", "anchor:", "hitbox:", "hurtbox:" };
                 struct tag_data td = tag_finder( d, tags, 6, 0 );
 
                 vector_push( F->srcs, ((SDL_FRect){-1,-1,-1,-1}) );
@@ -252,9 +252,8 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA ){
     
             break;
 
-        case HURT:
+        case BEATEN:
             
-
             break;
     }
     
@@ -297,6 +296,17 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA ){
     */
 }
 
+SDL_FRect fighter_box_to_world( Fighter *F, SDL_FRect *box ){
+    int frm = F->state_frame_offsets[ F->state ] + F->frame;
+    SDL_FRect out = *box;
+    if( F->direcao < 0 ){
+        out.x = F->pos.x + (2 * F->anchors[frm].x) - box->x - box->w;
+    } else{
+        out.x = F->pos.x - F->anchors[frm].x + box->x; 
+    }
+    out.y = F->pos.y - F->anchors[frm].y + box->y;
+    return out;
+}
 
 SDL_FRect get_Fighter_dstrct_now( Fighter *F ){
     int frm = F->state_frame_offsets[ F->state ] + F->frame;
@@ -311,42 +321,33 @@ SDL_FRect get_Fighter_dstrct_now( Fighter *F ){
 
 SDL_FRect get_Fighter_boundingbox_now( Fighter *F ){
     int frm = F->state_frame_offsets[ F->state ] + F->frame;
-    SDL_FRect box;
     int hs = vector_size( F->hitboxes[frm] );
-    if( hs == 1 ){
-        box = F->hitboxes[frm][0];
-        if( F->direcao < 0 ){
-            box.x = F->pos.x + (2 * F->anchors[frm].x) - F->hitboxes[frm][0].x - F->hitboxes[frm][0].w;
-        } else{
-            box.x = F->pos.x - F->anchors[frm].x + F->hitboxes[frm][0].x; 
-        }
-        box.y = F->pos.y - F->anchors[frm].y + F->hitboxes[frm][0].y;
+    SDL_FRect box = fighter_box_to_world( F, F->hitboxes[frm]+0 );
+    for (int i = 1; i < hs; ++i){
+        box = add_rects( &box, F->hitboxes[frm]+i );
     }
-    else{
-        for (int i = 0; i < hs; ++i){
-            //agregar todos os boxes
-        }
-    }
-
-    hs = vector_size( F->hurtboxes[frm] );
-    if( hs == 1 ){
-        box = F->hurtboxes[frm][0];
-        if( F->direcao < 0 ){
-            box.x = F->pos.x + (2 * F->anchors[frm].x) - F->hurtboxes[frm][0].x - F->hurtboxes[frm][0].w;
-        } else{
-            box.x = F->pos.x - F->anchors[frm].x + F->hurtboxes[frm][0].x; 
-        }
-        box.y = F->pos.y - F->anchors[frm].y + F->hurtboxes[frm][0].y;
-    }
-    else{
-        for (int i = 0; i < hs; ++i){
-            //agregar todos os boxes
-        }
-    }
-
     return box;
 }
 
+void fighters_hurt( Fighter *attacker, Fighter *defender ){
+    int Afrm = attacker->state_frame_offsets[ attacker->state ] + attacker->frame;
+    int Dfrm = defender->state_frame_offsets[ defender->state ] + defender->frame;
+    int hurts = vector_size( attacker->hurtboxes[Afrm] );
+    int hits = vector_size( defender->hitboxes[Dfrm] );
+    for (int a = 0; a < hurts; ++a) {
+        for( int d = 0; d < hits; ++d ){
+            SDL_FRect abox = fighter_box_to_world( attacker, attacker->hurtboxes[Afrm] + a );
+            SDL_FRect dbox = fighter_box_to_world( defender, defender->hitboxes[Dfrm] + d );
+            if( SDL_FRect_overlap( &abox, &dbox ) ){
+                // acertou o ataque!!!
+                //defender->hp -= 5;
+                defender->state = BEATEN; defender->frame = 0;
+                SDL_Log("Ai, me bateu!!");
+
+            }
+        }
+    }
+}
 
 
 void display_Fighter( SDL_Renderer *R, Fighter *F ){
@@ -406,6 +407,7 @@ void Fighter_tick_frame( Fighter *F ){
                 F->frame = 0;
                 break;
 
+            case BEATEN:
             case LAND:
             case ATTACK:// finish animation
                 F->state = IDLE; F->frame = 0;
@@ -415,7 +417,7 @@ void Fighter_tick_frame( Fighter *F ){
                 F->frame -= 1;
                 break;
 
-            case HURT:
+            
 
         }
     }
@@ -496,7 +498,7 @@ int main(int argc, char *argv[]){
     Fighter P2 = {0};
 
 
-    Fighter_load_spritesheet( R, &P2, "Assets/BA" );
+    Fighter_load_spritesheet( R, &P2, "Assets/Susk_Sprites" );
     P2.pos = v2d( width-100, FLOOR_Y );
     P2.walkspeed = 4;
     P2.jumppower = -30;
@@ -624,6 +626,9 @@ int main(int argc, char *argv[]){
             Fighter_tick_frame( &P2 );
             next_ani_tick = SDL_GetTicks() + animation_period;
         }
+
+        fighters_hurt( &P1, &P2 );
+        fighters_hurt( &P2, &P1 );
 
         display_Fighter( R, &P1 ); display_Fighter_boxes( R, &P1 );
         display_Fighter( R, &P2 ); display_Fighter_boxes( R, &P2 );
