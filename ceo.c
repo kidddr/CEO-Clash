@@ -489,7 +489,7 @@ int main(int argc, char *argv[]){
 
 
     Fighter P1 = {0};
-    Fighter_load_spritesheet( R, &P1, "Assets/Susk_Sprites" );
+    Fighter_load_spritesheet( R, &P1, "Assets/BA" );
     P1.pos = v2d( 100, FLOOR_Y );
     P1.walkspeed = 8;
     P1.jumppower = -24;
