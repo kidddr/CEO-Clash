@@ -457,7 +457,7 @@ int main(int argc, char *argv[]){
 
 
     //TEXTURAS
-
+/*
     SDL_Texture *Fundo = IMG_LoadTexture(R,"Assets/ceu1.png");
     float fundow, fundoh;
     SDL_GetTextureSize(Fundo, &fundow, &fundoh);
@@ -481,15 +481,17 @@ int main(int argc, char *argv[]){
     SDL_Texture *Fundo6 = IMG_LoadTexture(R,"Assets/pred6.png");
     float fundo6w, fundo6h;
     SDL_GetTextureSize(Fundo6, &fundo6w, &fundo6h);
+*/
 
-
-
+    SDL_Texture *Fundo0 = IMG_LoadTexture(R,"Assets/AdD.png");
+    float fundo0w, fundo0h;
+    SDL_GetTextureSize(Fundo0, &fundo0w, &fundo0h);
 
     //  HITBOXES PERSONAGENS
 
 
     Fighter P1 = {0};
-    Fighter_load_spritesheet( R, &P1, "Assets/BA" );
+    Fighter_load_spritesheet( R, &P1, "Assets/Susk_Sprites" );
     P1.pos = v2d( 100, FLOOR_Y );
     P1.walkspeed = 8;
     P1.jumppower = -24;
@@ -569,7 +571,7 @@ int main(int argc, char *argv[]){
 
         //SDL_SetRenderDrawColor( R, 0,0,0,255 );
         //SDL_RenderLine( R, 0, FLOOR_Y, width, FLOOR_Y );
-
+/*
         SDL_FRect fundodest = {0,0,width,height};
         SDL_RenderTexture(R, Fundo, NULL, &fundodest);
 
@@ -584,6 +586,14 @@ int main(int argc, char *argv[]){
 
         SDL_FRect fundo5dest = {0,0,width,height};
         SDL_RenderTexture(R, Fundo5, NULL, &fundo5dest);
+*/
+
+
+    
+
+        SDL_FRect src_rect = {(P1.pos.x + P2.pos.x) / 2.0f - width / 2.0f, 900, width, height};
+        SDL_FRect fundo0dest = {0, 0, width, height};
+        SDL_RenderTexture(R, Fundo0, &src_rect, &fundo0dest);
 
 
         Fighter_control( &P1, p1u, p1d, p1l, p1r, p1_A );
