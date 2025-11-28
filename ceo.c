@@ -457,31 +457,6 @@ int main(int argc, char *argv[]){
 
 
     //TEXTURAS
-/*
-    SDL_Texture *Fundo = IMG_LoadTexture(R,"Assets/ceu1.png");
-    float fundow, fundoh;
-    SDL_GetTextureSize(Fundo, &fundow, &fundoh);
-
-    SDL_Texture *Fundo2 = IMG_LoadTexture(R,"Assets/ceu2.png");
-    float fundo2w, fundo2h;
-    SDL_GetTextureSize(Fundo2, &fundo2w, &fundo2h);
-
-    SDL_Texture *Fundo3 = IMG_LoadTexture(R,"Assets/morros3.png");
-    float fundo3w, fundo3h;
-    SDL_GetTextureSize(Fundo3, &fundo3w, &fundo3h);
-
-    SDL_Texture *Fundo4 = IMG_LoadTexture(R,"Assets/pred4.png");
-    float fundo4w, fundo4h;
-    SDL_GetTextureSize(Fundo4, &fundo4w, &fundo4h);
-
-    SDL_Texture *Fundo5 = IMG_LoadTexture(R,"Assets/pred5.png");
-    float fundo5w, fundo5h;
-    SDL_GetTextureSize(Fundo5, &fundo5w, &fundo5h);
-    
-    SDL_Texture *Fundo6 = IMG_LoadTexture(R,"Assets/pred6.png");
-    float fundo6w, fundo6h;
-    SDL_GetTextureSize(Fundo6, &fundo6w, &fundo6h);
-*/
 
     SDL_Texture *Fundo0 = IMG_LoadTexture(R,"Assets/AdD.png");
     float fundo0w, fundo0h;
@@ -571,25 +546,7 @@ int main(int argc, char *argv[]){
 
         //SDL_SetRenderDrawColor( R, 0,0,0,255 );
         //SDL_RenderLine( R, 0, FLOOR_Y, width, FLOOR_Y );
-/*
-        SDL_FRect fundodest = {0,0,width,height};
-        SDL_RenderTexture(R, Fundo, NULL, &fundodest);
 
-        SDL_FRect fundo2dest = {0,0,width,height};
-        SDL_RenderTexture(R, Fundo2, NULL, &fundo2dest);
-
-        SDL_FRect fundo3dest = {0,0,width,height};
-        SDL_RenderTexture(R, Fundo3, NULL, &fundo3dest);
-
-        SDL_FRect fundo4dest = {0,0,width,height};
-        SDL_RenderTexture(R, Fundo4, NULL, &fundo4dest);
-
-        SDL_FRect fundo5dest = {0,0,width,height};
-        SDL_RenderTexture(R, Fundo5, NULL, &fundo5dest);
-*/
-
-
-    
 
         SDL_FRect src_rect = {(P1.pos.x + P2.pos.x) / 2.0f - width / 2.0f, 900, width, height};
         SDL_FRect fundo0dest = {0, 0, width, height};
@@ -659,9 +616,6 @@ int main(int argc, char *argv[]){
         //if( P2.direcao > 0 ) flip2 = 1;
         //else if( P2.direcao < 0 ) flip2 = 0;
         //SDL_RenderTextureRotated(R, Melon, NULL, &(P2.hitbox), 0, NULL, flip2);
-    
-       // SDL_FRect fundo6dest = {0,0,width,height};
-        //SDL_RenderTexture(R, Fundo6, NULL, &fundo6dest);
 
         
         SDL_RenderPresent(R);
