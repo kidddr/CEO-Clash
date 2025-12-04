@@ -25,6 +25,8 @@ float WALL_L = 0;
 float WALL_R = 0;
 float FLOOR_Y = 0;
 
+Transform T;
+
 // STATES
 #define NUM_STATES 8
 enum{ IDLE, WALK, JUMP, FALL, LAND, CROUCH, ATTACK, BEATEN };
@@ -356,6 +358,8 @@ void display_Fighter( SDL_Renderer *R, Fighter *F ){
     int frm = F->state_frame_offsets[ F->state ] + F->frame;
     //SDL_Log( "%p: %d, %d", F, F->state, frm );
     SDL_FRect dst = get_Fighter_dstrct_now( F );
+    dst = apply_transform_frect( &dst, &T ); // PARA A CÂMERA
+    //SDL_Log( "%g, %g, %g, %g", dst.x, dst.y, dst.w, dst.h );
     SDL_RenderTextureRotated( R, F->spritesheet, F->srcs + frm, &dst, 0, NULL, flip );
 }
 
@@ -449,9 +453,6 @@ int main(int argc, char *argv[]){
     cx = width / 2;
     cy = height / 2;
 
-    WALL_R = width;
-    FLOOR_Y = height - 100;
-
     SDL_srand(0);
 
 
@@ -461,6 +462,11 @@ int main(int argc, char *argv[]){
     SDL_Texture *Fundo0 = IMG_LoadTexture(R,"Assets/AdD.png");
     float fundo0w, fundo0h;
     SDL_GetTextureSize(Fundo0, &fundo0w, &fundo0h);
+
+    WALL_R = fundo0w;
+    FLOOR_Y = height - 100;
+
+    T = (Transform){0,0,0,0,1,1};
 
     //  HITBOXES PERSONAGENS
 
@@ -544,13 +550,30 @@ int main(int argc, char *argv[]){
         SDL_SetRenderDrawColor( R, 200,200,200,255 );
         SDL_RenderClear(R);
 
-        //SDL_SetRenderDrawColor( R, 0,0,0,255 );
-        //SDL_RenderLine( R, 0, FLOOR_Y, width, FLOOR_Y );
+        float fighters_dist = SDL_fabsf( P1.pos.x - P2.pos.x );
+        fighters_dist *= 1.2;
+        if( fighters_dist < width ) T.s = 1;
+        else{
+            T.s = width / fighters_dist;
+        }
+        set_scale( &T, T.s );
+        float camx = ((P1.pos.x + P2.pos.x) / 2.0f) - (fighters_dist / 2.0f);
+        if( camx < 0 ) camx = 0;
+        if( camx > fundo0w - fighters_dist ) camx = fundo0w - fighters_dist;
+        T.tx = camx;
+        float floor_world_y = fundo0h - 100;
+        float visible_height = height * T.invs;
+        float camy = floor_world_y - FLOOR_Y * T.invs;
+        if (camy < 0) camy = 0;
+        if (camy > fundo0h - visible_height) camy = fundo0h - visible_height;
+        T.ty = FLOOR_Y - (FLOOR_Y * T.invs);
 
+        /*if(camy < 0){
+            camx = 
+        }*/
 
-        SDL_FRect src_rect = {(P1.pos.x + P2.pos.x) / 2.0f - width / 2.0f, 900, width, height};
-        SDL_FRect fundo0dest = {0, 0, width, height};
-        SDL_RenderTexture(R, Fundo0, &src_rect, &fundo0dest);
+        SDL_FRect src_rect = {camx, camy, width * T.invs, height * T.invs};
+        SDL_RenderTexture( R, Fundo0, &src_rect, NULL );
 
 
         Fighter_control( &P1, p1u, p1d, p1l, p1r, p1_A );
@@ -597,20 +620,11 @@ int main(int argc, char *argv[]){
         fighters_hurt( &P1, &P2 );
         fighters_hurt( &P2, &P1 );
 
-        display_Fighter( R, &P1 ); display_Fighter_boxes( R, &P1 );
-        display_Fighter( R, &P2 ); display_Fighter_boxes( R, &P2 );
+        display_Fighter( R, &P1 ); //display_Fighter_boxes( R, &P1 );
+        display_Fighter( R, &P2 ); //display_Fighter_boxes( R, &P2 );
 
-        /*if( SDL_GetTicks() >= next_ani_tick ){
-            Fighter_tick_frame( &P1 );
-            next_ani_tick = SDL_GetTicks() + animation_period;
-        }
-        display_Fighter( R, &P1 );*/
-
-        if( SDL_GetTicks() >= next_ani_tick ){
-            Fighter_tick_frame( &P2 );
-            next_ani_tick = SDL_GetTicks() + animation_period;
-        }
-        display_Fighter( R, &P2 );
+        SDL_SetRenderDrawColor( R, 0,0,0,255 );
+        SDL_RenderLine( R, 0, FLOOR_Y, width, FLOOR_Y );
 
         //int flip2;
         //if( P2.direcao > 0 ) flip2 = 1;
