@@ -459,9 +459,11 @@ int main(int argc, char *argv[]){
 
     //TEXTURAS
 
-    SDL_Texture *Fundo0 = IMG_LoadTexture(R,"Assets/AdD.png");
+    SDL_Texture *Fundo0 = IMG_LoadTexture(R,"Assets/AdD1.png");
+    SDL_Texture *Fundo1 = IMG_LoadTexture(R,"Assets/AdD2.png");
     float fundo0w, fundo0h;
     SDL_GetTextureSize(Fundo0, &fundo0w, &fundo0h);
+    SDL_GetTextureSize(Fundo1, &fundo0w, &fundo0h);
 
     WALL_R = fundo0w;
     FLOOR_Y = height - 100;
@@ -474,7 +476,7 @@ int main(int argc, char *argv[]){
     Fighter P1 = {0};
     Fighter_load_spritesheet( R, &P1, "Assets/Susk_Sprites" );
     P1.pos = v2d( 100, FLOOR_Y );
-    P1.walkspeed = 8;
+    P1.walkspeed = 15;
     P1.jumppower = -24;
     P1.direcao = 0;
 
@@ -483,7 +485,7 @@ int main(int argc, char *argv[]){
 
     Fighter_load_spritesheet( R, &P2, "Assets/Susk_Sprites" );
     P2.pos = v2d( width-100, FLOOR_Y );
-    P2.walkspeed = 4;
+    P2.walkspeed = 15;
     P2.jumppower = -30;
     P2.direcao = 1;
 
@@ -568,9 +570,7 @@ int main(int argc, char *argv[]){
         if (camy > fundo0h - visible_height) camy = fundo0h - visible_height;
         T.ty = FLOOR_Y - (FLOOR_Y * T.invs);
 
-        /*if(camy < 0){
-            camx = 
-        }*/
+        //if(camy < 0)  ;
 
         SDL_FRect src_rect = {camx, camy, width * T.invs, height * T.invs};
         SDL_RenderTexture( R, Fundo0, &src_rect, NULL );
@@ -626,6 +626,7 @@ int main(int argc, char *argv[]){
         SDL_SetRenderDrawColor( R, 0,0,0,255 );
         SDL_RenderLine( R, 0, FLOOR_Y, width, FLOOR_Y );
 
+        SDL_RenderTexture( R, Fundo1, &src_rect, NULL );
         //int flip2;
         //if( P2.direcao > 0 ) flip2 = 1;
         //else if( P2.direcao < 0 ) flip2 = 0;
