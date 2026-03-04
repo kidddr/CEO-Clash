@@ -20,6 +20,8 @@
 #define buflen 512
 char buf [buflen];
 
+#define GetTexSz(T) float tw, th; \
+    SDL_GetTextureSize(T, &tw, &th);
 
 float WALL_L = 0;
 float WALL_R = 0;
@@ -35,9 +37,7 @@ const char state_names [NUM_STATES][24] = { "idle", "walk", "jump", "fall", "lan
 
 typedef struct {
 
-    SDL_Texture *spritesheet;
-
-    SDL_FRect  *srcs;
+    SDL_Texture **frames;
     vec2d *anchors;
     SDL_FRect **hitboxes; // Onde eu RECEBO hits
     SDL_FRect **hurtboxes; // onde eu MACHUCO os outros
@@ -60,15 +60,16 @@ typedef struct {
 } Fighter;
 
 
-void Fighter_load_spritesheet( SDL_Renderer *R, Fighter *F, char *filename ){
+void Load_fighter( SDL_Renderer *R, Fighter *F, char *path ){
 
-    SDL_snprintf( buf, buflen, "%s.png", filename );
-    F->spritesheet = IMG_LoadTexture(R, buf );
-    SDL_snprintf( buf, buflen, "%s.txt", filename );
+
+    SDL_snprintf( buf, buflen, "%s/data.txt", path );
     SDL_IOStream *d = SDL_IOFromFile( buf, "r" );
+    
+
     if( d != NULL ){
 
-        F->srcs = NULL;
+        F->frames = NULL;
         F->anchors = NULL;
         F->hitboxes = NULL;
         F->hurtboxes = NULL;
@@ -105,10 +106,10 @@ void Fighter_load_spritesheet( SDL_Renderer *R, Fighter *F, char *filename ){
                 SDL_SeekIO( d, std.locations[L], SDL_IO_SEEK_SET );
                 //if( SDL_GetIOStatus(d) != SDL_IO_STATUS_READY ) break;
 
-                const char tags [5][24] = { "\n", "src:", "anchor:", "hitbox:", "hurtbox:" };
+                const char tags [5][24] = { "\n", "file:", "anchor:", "hitbox:", "hurtbox:" };
                 struct tag_data td = tag_finder( d, tags, 6, 0 );
 
-                vector_push( F->srcs, ((SDL_FRect){-1,-1,-1,-1}) );
+                vector_push( F->frames, NULL );
                 vector_push( F->anchors, v2d(-1,-1) );
                 vector_push( F->hitboxes, NULL );
                 vector_push( F->hurtboxes, NULL );
@@ -119,17 +120,22 @@ void Fighter_load_spritesheet( SDL_Renderer *R, Fighter *F, char *filename ){
 
                     //SDL_Log("[%d]: %s\n", i, tags[ td.indices[i] ] );
                     SDL_SeekIO( d, td.locations[i], SDL_IO_SEEK_SET );
-                    fscan_str_until_any( d, buf, buflen, ":\n" );
+                    fscan_str_until_any( d, buf, buflen, ":;\n" );
                     //SDL_Log("buf: %s\n", buf );
 
                     switch( td.indices[i] ){
-                        case 1:{ // src:
-                            int x, y, w, h;
-                            int matches = SDL_sscanf( buf, "%d, %d, %d, %d", &x, &y, &w, &h );
-                            //SDL_Log("matches: %d\n", matches );
-                            if( matches == 4 ){
-                                F->srcs[line] = (SDL_FRect){x, y, w, h};
-                            } else SDL_Log( "Bad src matches!" );
+                        case 1:{ // file:
+                            char pathbuf [512];
+                            SDL_snprintf( pathbuf, 512, "%s/%s", path, buf );
+                            F->frames[line] = IMG_LoadTexture( R, pathbuf );
+                            /*
+                                int x, y, w, h;
+                                int matches = SDL_sscanf( buf, "%d, %d, %d, %d", &x, &y, &w, &h );
+                                //SDL_Log("matches: %d\n", matches );
+                                if( matches == 4 ){
+                                    F->frames[line] = (SDL_FRect){x, y, w, h};
+                                } else SDL_Log( "Bad src matches!" );
+                                */
                         } break;
                         case 2:{ // anchor:
                             int x, y;
@@ -166,7 +172,7 @@ void Fighter_load_spritesheet( SDL_Renderer *R, Fighter *F, char *filename ){
         SDL_CloseIO( d );
     }
     else{
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to load \"%s\": %s.", filename, SDL_GetError());
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to load \"%s\": %s.", path, SDL_GetError());
     }
 }
 
@@ -312,9 +318,10 @@ SDL_FRect fighter_box_to_world( Fighter *F, SDL_FRect *box ){
 
 SDL_FRect get_Fighter_dstrct_now( Fighter *F ){
     int frm = F->state_frame_offsets[ F->state ] + F->frame;
-    SDL_FRect dst = (SDL_FRect){ 0, F->pos.y - F->anchors[frm].y, F->srcs[frm].w, F->srcs[frm].h };
+    GetTexSz(F->frames[frm]);
+    SDL_FRect dst = (SDL_FRect){ 0, F->pos.y - F->anchors[frm].y, tw, th };
     if( F->direcao < 0 ){
-        dst.x = F->pos.x + (2 * F->anchors[frm].x) - F->srcs[frm].w;
+        dst.x = F->pos.x + (2 * F->anchors[frm].x) - tw;
     } else {
         dst.x = F->pos.x - F->anchors[frm].x;
     }
@@ -360,7 +367,7 @@ void display_Fighter( SDL_Renderer *R, Fighter *F ){
     SDL_FRect dst = get_Fighter_dstrct_now( F );
     dst = apply_transform_frect( &dst, &T ); // PARA A CÂMERA
     //SDL_Log( "%g, %g, %g, %g", dst.x, dst.y, dst.w, dst.h );
-    SDL_RenderTextureRotated( R, F->spritesheet, F->srcs + frm, &dst, 0, NULL, flip );
+    SDL_RenderTextureRotated( R, F->frames[frm], NULL, &dst, 0, NULL, flip );
 }
 
 void display_Fighter_boxes( SDL_Renderer *R, Fighter *F ){
@@ -399,7 +406,7 @@ void Fighter_tick_frame( Fighter *F ){
 
     F->frame += 1;
     int frm = F->state_frame_offsets[ F->state ] + F->frame;
-    //SDL_Log( "%d: %d - %d - %d - %g",F->state, F->frame, F->state_frame_offsets[ F->state + 1 ], F->state_frame_offsets[ F->state ], F->srcs[frm].x );
+    //SDL_Log( "%d: %d - %d - %d - %g",F->state, F->frame, F->state_frame_offsets[ F->state + 1 ], F->state_frame_offsets[ F->state ], F->frames[frm].x );
     if( F->frame >= F->state_frame_offsets[ F->state + 1 ] - F->state_frame_offsets[ F->state ] ){
         
         switch( F->state ){
@@ -474,7 +481,7 @@ int main(int argc, char *argv[]){
 
 
     Fighter P1 = {0};
-    Fighter_load_spritesheet( R, &P1, "Assets/Susk_Sprites" );
+    Load_fighter( R, &P1, "Assets/Susk" );
     P1.pos = v2d( 100, FLOOR_Y );
     P1.walkspeed = 15;
     P1.jumppower = -24;
@@ -483,7 +490,7 @@ int main(int argc, char *argv[]){
     Fighter P2 = {0};
 
 
-    Fighter_load_spritesheet( R, &P2, "Assets/Susk_Sprites" );
+    Load_fighter( R, &P2, "Assets/Susk" );
     P2.pos = v2d( width-100, FLOOR_Y );
     P2.walkspeed = 15;
     P2.jumppower = -30;

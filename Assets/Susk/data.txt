@@ -1,0 +1,27 @@
+crouch[0]: file: Crouch 1.png; anchor: 448, 302 hitbox: 345, 113, 733, 198
+crouch[1]: file: Crouch 2.png; anchor: 461, 303 hitbox: 323, 108, 772, 202
+crouch[2]: file: Crouch 3.png; anchor: 469, 299 hitbox: 344, 121, 756, 191
+crouch[3]: file: Crouch 4.png; anchor: 463, 307 hitbox: 357, 126, 746, 189
+crouch[4]: file: Crouch 5.png; anchor: 460, 304 hitbox: 369, 128, 736, 184
+beaten[0]: file: Beaten 1.png; anchor: 287, 501 hitbox: 174, 11, 522, 495
+beaten[1]: file: Beaten 2.png; anchor: 285, 551 hitbox: 142, 40, 515, 523
+beaten[2]: file: Beaten 3.png; anchor: 320, 569 hitbox: 128, 14, 536, 572
+idle[0]: file: idle 1.png; anchor: 718, 724 hitbox: 564, 40, 1129, 714
+idle[1]: file: idle 2.png; anchor: 718, 724 hitbox: 564, 40, 1129, 714
+idle[2]: file: idle 3.png; anchor: 718, 724 hitbox: 564, 40, 1129, 714
+idle[3]: file: idle 4.png; anchor: 718, 724 hitbox: 564, 40, 1129, 714
+idle[4]: file: idle 5.png; anchor: 718, 724 hitbox: 564, 40, 1129, 714
+attack[0]: file: attack 1.png; anchor: 400, 421 hitbox: 309, 56, 681, 389
+attack[1]: file: attack 2.png; anchor: 450, 453 hitbox: 289, 48, 636, 415
+attack[2]: file: attack 3.png; anchor: 319, 601 hitbox: 130, 120, 631, 483 hurtbox: 237, 10, 275, 173
+attack[3]: file: attack 4.png; anchor: 433, 390 hitbox: 426, 80, 654, 338 hurtbox: 1084, 239, 417, 233
+attack[4]: file: attack 5.png; anchor: 388, 314 hitbox: 351, 52, 721, 297 hurtbox: 1083, 200, 263, 186
+walk[0]: file: walk 1.png; anchor: 203, 342 hitbox: 148, 68, 702, 302
+walk[1]: file: walk 2.png; anchor: 255, 348 hitbox: 127, 20, 712, 357
+walk[2]: file: walk 3.png; anchor: 297, 357 hitbox: 228, 37, 659, 324
+walk[3]: file: walk 4.png; anchor: 414, 346 hitbox: 293, 55, 686, 315
+walk[4]: file: walk 5.png; anchor: 398, 331 hitbox: 300, 63, 725, 290
+walk[5]: file: walk 6.png; anchor: 333, 330 hitbox: 273, 33, 681, 324
+walk[6]: file: walk 7.png; anchor: 310, 374 hitbox: 237, 76, 662, 341
+walk[7]: file: walk 8.png; anchor: 268, 319 hitbox: 226, 43, 605, 309
+
