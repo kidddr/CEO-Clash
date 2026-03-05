@@ -6,11 +6,11 @@ crouch[4]: file: Crouch 5.png; anchor: 460, 304 hitbox: 369, 128, 736, 184
 beaten[0]: file: Beaten 1.png; anchor: 287, 501 hitbox: 174, 11, 522, 495
 beaten[1]: file: Beaten 2.png; anchor: 285, 551 hitbox: 142, 40, 515, 523
 beaten[2]: file: Beaten 3.png; anchor: 320, 569 hitbox: 128, 14, 536, 572
-idle[0]: file: idle 1.png; anchor: 718, 724 hitbox: 564, 40, 1129, 714
-idle[1]: file: idle 2.png; anchor: 718, 724 hitbox: 564, 40, 1129, 714
-idle[2]: file: idle 3.png; anchor: 718, 724 hitbox: 564, 40, 1129, 714
-idle[3]: file: idle 4.png; anchor: 718, 724 hitbox: 564, 40, 1129, 714
-idle[4]: file: idle 5.png; anchor: 718, 724 hitbox: 564, 40, 1129, 714
+idle[0]: file: idle 1.png; anchor: 726, 714 hitbox: 492, -6, 1181, 782
+idle[1]: file: idle 2.png; anchor: 726, 714 hitbox: 492, -6, 1181, 782
+idle[2]: file: idle 3.png; anchor: 726, 714 hitbox: 492, -6, 1181, 782
+idle[3]: file: idle 4.png; anchor: 726, 714 hitbox: 492, -6, 1181, 782
+idle[4]: file: idle 5.png; anchor: 726, 714 hitbox: 492, -6, 1181, 782
 attack[0]: file: attack 1.png; anchor: 400, 421 hitbox: 309, 56, 681, 389
 attack[1]: file: attack 2.png; anchor: 450, 453 hitbox: 289, 48, 636, 415
 attack[2]: file: attack 3.png; anchor: 319, 601 hitbox: 130, 120, 631, 483 hurtbox: 237, 10, 275, 173

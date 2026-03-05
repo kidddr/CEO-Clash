@@ -371,7 +371,7 @@ void display_Fighter( SDL_Renderer *R, Fighter *F ){
 }
 
 void display_Fighter_boxes( SDL_Renderer *R, Fighter *F ){
-    int frm = F->state_frame_offsets[ F->state ] + F->frame;
+    int frm = F->state_frame_offsets[ F->state ] + F->frames;
     int hs = vector_size( F->hitboxes[frm] );
 
     SDL_SetRenderDrawColor( R, 0, 255, 0, 255 );
@@ -481,7 +481,7 @@ int main(int argc, char *argv[]){
 
 
     Fighter P1 = {0};
-    Load_fighter( R, &P1, "Assets/Susk" );
+    Load_fighter( R, &P1, "Assets/Abilli" );
     P1.pos = v2d( 100, FLOOR_Y );
     P1.walkspeed = 15;
     P1.jumppower = -24;
@@ -493,7 +493,7 @@ int main(int argc, char *argv[]){
     Load_fighter( R, &P2, "Assets/Susk" );
     P2.pos = v2d( width-100, FLOOR_Y );
     P2.walkspeed = 15;
-    P2.jumppower = -30;
+    P2.jumppower = -70;
     P2.direcao = 1;
 
 
@@ -627,13 +627,14 @@ int main(int argc, char *argv[]){
         fighters_hurt( &P1, &P2 );
         fighters_hurt( &P2, &P1 );
 
-        display_Fighter( R, &P1 ); //display_Fighter_boxes( R, &P1 );
-        display_Fighter( R, &P2 ); //display_Fighter_boxes( R, &P2 );
+        display_Fighter( R, &P1 ); display_Fighter_boxes( R, &P1 );
+        display_Fighter( R, &P2 ); display_Fighter_boxes( R, &P2 );
 
         SDL_SetRenderDrawColor( R, 0,0,0,255 );
         SDL_RenderLine( R, 0, FLOOR_Y, width, FLOOR_Y );
 
         SDL_RenderTexture( R, Fundo1, &src_rect, NULL );
+
         //int flip2;
         //if( P2.direcao > 0 ) flip2 = 1;
         //else if( P2.direcao < 0 ) flip2 = 0;
