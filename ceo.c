@@ -32,7 +32,7 @@ Transform T;
 // STATES
 #define NUM_STATES 8
 enum{ IDLE, WALK, JUMP, FALL, LAND, CROUCH, ATTACK, BEATEN };
-const char state_names [NUM_STATES][24] = { "idle", "walk", "jump", "fall", "land", "crouch", "attack", "beaten" };
+const char state_names [NUM_STATES][24] = { ">idle", ">walk", ">jump", ">fall", ">land", ">crouch", ">attack", ">beaten" };
 
 
 typedef struct {
@@ -84,13 +84,14 @@ void Load_fighter( SDL_Renderer *R, Fighter *F, char *path ){
                 break;
             }
             state_counts[ std.indices[S] ] += 1;
+            SDL_Log( "std.indices[%d] = %d, sc: %d", S, std.indices[S], state_counts[std.indices[S]] );
         }
 
         F->state_frame_offsets = SDL_malloc( (NUM_STATES + 1) * sizeof(int) );
         F->state_frame_offsets[0] = 0;
         for (int s = 1; s < NUM_STATES; ++s ){
             F->state_frame_offsets[s] = F->state_frame_offsets[s-1] + state_counts[s-1];
-            //SDL_Log( "sfo[%d] = %d", s, F->state_frame_offsets[s] );
+            SDL_Log( "sfo[%d] = %d", s, F->state_frame_offsets[s] );
         }
         F->state_frame_offsets[NUM_STATES] = F->state_frame_offsets[NUM_STATES-1] + state_counts[NUM_STATES-1];
 
@@ -126,8 +127,12 @@ void Load_fighter( SDL_Renderer *R, Fighter *F, char *path ){
                     switch( td.indices[i] ){
                         case 1:{ // file:
                             char pathbuf [512];
+                            strtrim(buf);
                             SDL_snprintf( pathbuf, 512, "%s/%s", path, buf );
                             F->frames[line] = IMG_LoadTexture( R, pathbuf );
+                            if( F->frames[line] == NULL ){
+                                SDL_Log( "failed to load frame \"%s\": %s", pathbuf, SDL_GetError() );
+                            }
                             /*
                                 int x, y, w, h;
                                 int matches = SDL_sscanf( buf, "%d, %d, %d, %d", &x, &y, &w, &h );
@@ -320,6 +325,7 @@ SDL_FRect get_Fighter_dstrct_now( Fighter *F ){
     int frm = F->state_frame_offsets[ F->state ] + F->frame;
     GetTexSz(F->frames[frm]);
     SDL_FRect dst = (SDL_FRect){ 0, F->pos.y - F->anchors[frm].y, tw, th };
+    //SDL_Log( "get: %g, %g, %g", dst.y, dst.w, dst.h );
     if( F->direcao < 0 ){
         dst.x = F->pos.x + (2 * F->anchors[frm].x) - tw;
     } else {
@@ -371,7 +377,7 @@ void display_Fighter( SDL_Renderer *R, Fighter *F ){
 }
 
 void display_Fighter_boxes( SDL_Renderer *R, Fighter *F ){
-    int frm = F->state_frame_offsets[ F->state ] + F->frames;
+    int frm = F->state_frame_offsets[ F->state ] + F->frame;
     int hs = vector_size( F->hitboxes[frm] );
 
     SDL_SetRenderDrawColor( R, 0, 255, 0, 255 );
@@ -484,13 +490,13 @@ int main(int argc, char *argv[]){
     Load_fighter( R, &P1, "Assets/Abilli" );
     P1.pos = v2d( 100, FLOOR_Y );
     P1.walkspeed = 15;
-    P1.jumppower = -24;
+    P1.jumppower = -100;
     P1.direcao = 0;
 
     Fighter P2 = {0};
 
 
-    Load_fighter( R, &P2, "Assets/Susk" );
+    Load_fighter( R, &P2, "Assets/Abilli" );
     P2.pos = v2d( width-100, FLOOR_Y );
     P2.walkspeed = 15;
     P2.jumppower = -70;
@@ -633,7 +639,7 @@ int main(int argc, char *argv[]){
         SDL_SetRenderDrawColor( R, 0,0,0,255 );
         SDL_RenderLine( R, 0, FLOOR_Y, width, FLOOR_Y );
 
-        SDL_RenderTexture( R, Fundo1, &src_rect, NULL );
+        //SDL_RenderTexture( R, Fundo1, &src_rect, NULL );
 
         //int flip2;
         //if( P2.direcao > 0 ) flip2 = 1;

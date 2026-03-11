@@ -14,13 +14,13 @@ else
 endif
 
 ifeq ($(DETECTED_OS),Windows)
-	INCLUDE_PATHS = -IC:/SDL/SDL3-3.2.28/x86_64-w64-mingw32/include/SDL3
-	INCLUDE_PATHS += -IC:/SDL/SDL3-3.2.28/x86_64-w64-mingw32/include
-	INCLUDE_PATHS += -IC:/SDL/SDL3_image-3.2.4/x86_64-w64-mingw32/include/SDL3_image
+	INCLUDE_PATHS = -IC:/SDL/SDL3-3.4.2/x86_64-w64-mingw32/include/SDL3
+	INCLUDE_PATHS += -IC:/SDL/SDL3-3.4.2/x86_64-w64-mingw32/include
+	INCLUDE_PATHS += -IC:/SDL/SDL3_image-3.4.0/x86_64-w64-mingw32/include/SDL3_image
 #	INCLUDE_PATHS += -IC:/SDL/SDL3_ttf-3.2.2/x86_64-w64-mingw32/include/SDL3
 
-	LIBRARY_PATHS = -LC:/SDL/SDL3-3.2.28/x86_64-w64-mingw32/lib
-	LIBRARY_PATHS += -LC:/SDL/SDL3_image-3.2.4/x86_64-w64-mingw32/lib
+	LIBRARY_PATHS = -LC:/SDL/SDL3-3.4.2/x86_64-w64-mingw32/lib
+	LIBRARY_PATHS += -LC:/SDL/SDL3_image-3.4.0/x86_64-w64-mingw32/lib
 #	LIBRARY_PATHS += -LC:/SDL/SDL3_ttf-3.2.2/x86_64-w64-mingw32/lib
 
 	LINKER_FLAGS = -lSDL3 -lSDL3_image #-lSDL3_ttf
