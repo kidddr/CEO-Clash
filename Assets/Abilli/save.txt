@@ -1,0 +1,63 @@
+file: atk11_0000.png; anchor: 661, 676  hitbox: 557, 177, 171, 484
+file: atk11_0001.png; anchor: 642, 665  hitbox: 592, 168, 155, 496
+file: atk11_0002.png; anchor: 627, 685  hitbox: 595, 173, 181, 511
+file: atk11_0003.png; anchor: 583, 679  hitbox: 637, 135, 194, 552  hurtbox: 846, 219, 225, 195
+file: atk11_0004.png; anchor: 582, 680  hitbox: 578, 144, 226, 537  hurtbox: 820, 250, 254, 169
+file: atk11_0005.png; anchor: 583, 680  hitbox: 589, 152, 222, 523  hurtbox: 822, 229, 246, 194
+file: atk11_0006.png; anchor: 570, 683  hitbox: 584, 152, 199, 537  hurtbox: 790, 381, 67, 105
+file: atk11_0007.png; anchor: 569, 684  hitbox: 580, 162, 166, 520  hurtbox: 774, 384, 85, 106
+file: atk11_0008.png; anchor: 642, 683  hitbox: 573, 144, 161, 537
+file: beaten_0000.png; anchor: 617, 705  hitbox: 525, 132, 238, 549
+file: beaten_0001.png; anchor: 625, 695  hitbox: 535, 111, 230, 567
+file: beaten_0002.png; anchor: 617, 698  hitbox: 534, 150, 255, 524
+file: crouch_0000.png; anchor: 429, 652  hitbox: 417, 377, 366, 260
+file: crouch_0001.png; anchor: 429, 653  hitbox: 426, 402, 354, 233
+file: crouch_0002.png; anchor: 431, 652  hitbox: 401, 438, 371, 205
+file: crouch_0003.png; anchor: 432, 647  hitbox: 347, 426, 425, 218
+file: crouch_0004.png; anchor: 434, 650  hitbox: 361, 434, 411, 198
+file: crouch_0005.png; anchor: 434, 655  hitbox: 377, 423, 398, 218
+file: crouch_0006.png; anchor: 434, 655  hitbox: 383, 413, 395, 219
+file: fall_0000.png; anchor: 620, 662  hitbox: 541, 128, 239, 547
+file: fall_0001.png; anchor: 620, 666  hitbox: 544, 162, 231, 493
+file: fall_0002.png; anchor: 625, 671  hitbox: 541, 147, 227, 555
+file: idle_0000.png; anchor: 653, 678  hitbox: 578, 153, 149, 530
+file: idle_0001.png; anchor: 653, 679  hitbox: 578, 161, 145, 524
+file: idle_0002.png; anchor: 653, 678  hitbox: 574, 165, 150, 516
+file: idle_0003.png; anchor: 653, 679  hitbox: 563, 150, 166, 533
+file: idle_0004.png; anchor: 653, 678  hitbox: 577, 159, 152, 528
+file: idle_0005.png; anchor: 653, 677  hitbox: 583, 160, 148, 520
+file: idle_0006.png; anchor: 653, 678  hitbox: 579, 166, 160, 519
+file: idle_0007.png; anchor: 653, 677  hitbox: 584, 175, 149, 508
+file: idle_0008.png; anchor: 653, 678  hitbox: 578, 156, 152, 529
+file: idle_0009.png; anchor: 652, 678  hitbox: 578, 165, 143, 514
+file: jump_0000.png;
+file: jump_0001.png;
+file: jump_0002.png;
+file: jump_0003.png;
+file: jump_0004.png;
+file: jump_0005.png;
+file: jump_0006.png;
+file: jump_0007.png;
+file: jump_0008.png;
+file: jump_0009.png;
+file: land_0000.png;
+file: land_0001.png;
+file: land_0002.png;
+file: land_0003.png;
+file: land_0004.png;
+file: land_0005.png;
+file: walk_0000.png;
+file: walk_0001.png;
+file: walk_0002.png;
+file: walk_0003.png;
+file: walk_0004.png;
+file: walk_0005.png;
+file: walk_0006.png;
+file: walk_0007.png;
+file: walk_0008.png;
+file: walk_0009.png;
+file: walk_0010.png;
+file: walk_0011.png;
+file: walk_0012.png;
+file: walk_0013.png;
+file: walk_0014.png;
