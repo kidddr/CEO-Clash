@@ -313,7 +313,7 @@ SDL_FRect fighter_box_to_world( Fighter *F, SDL_FRect *box ){
     int frm = F->state_frame_offsets[ F->state ] + F->frame;
     SDL_FRect out = *box;
     if( F->direcao < 0 ){
-        out.x = F->pos.x + (2 * F->anchors[frm].x) - box->x - box->w;
+        out.x = F->pos.x +  F->anchors[frm].x - box->x - box->w;
     } else{
         out.x = F->pos.x - F->anchors[frm].x + box->x; 
     }
@@ -327,7 +327,7 @@ SDL_FRect get_Fighter_dstrct_now( Fighter *F ){
     SDL_FRect dst = (SDL_FRect){ 0, F->pos.y - F->anchors[frm].y, tw, th };
     //SDL_Log( "get: %g, %g, %g", dst.y, dst.w, dst.h );
     if( F->direcao < 0 ){
-        dst.x = F->pos.x + (2 * F->anchors[frm].x) - tw;
+        dst.x = F->pos.x +  F->anchors[frm].x - tw;
     } else {
         dst.x = F->pos.x - F->anchors[frm].x;
     }
@@ -379,31 +379,24 @@ void display_Fighter( SDL_Renderer *R, Fighter *F ){
 void display_Fighter_boxes( SDL_Renderer *R, Fighter *F ){
     int frm = F->state_frame_offsets[ F->state ] + F->frame;
     int hs = vector_size( F->hitboxes[frm] );
-
     SDL_SetRenderDrawColor( R, 0, 255, 0, 255 );
-    for (int i = 0; i < hs; ++i){
-        SDL_FRect rct = (SDL_FRect){ 0, F->pos.y - F->anchors[frm].y + F->hitboxes[frm][i].y,
-                                     F->hitboxes[frm][i].w,  F->hitboxes[frm][i].h };
-        if( F->direcao < 0 ){
-            rct.x = F->pos.x + (2 * F->anchors[frm].x) - F->hitboxes[frm][i].x - F->hitboxes[frm][i].w;
-        } else{
-            rct.x = F->pos.x - F->anchors[frm].x + F->hitboxes[frm][i].x; 
+
+    if( F->hitboxes[frm] ){
+        for (int i = 0; i < hs; ++i){
+            SDL_FRect rct = fighter_box_to_world(F, F->hitboxes[frm] + i);
+            rct = apply_transform_frect( &rct, &T ); // PARA A CÂMERA
+            SDL_RenderRect( R, &rct );
         }
-        SDL_RenderRect( R, &rct );
     }
 
-    hs = vector_size( F->hurtboxes[frm] );
-    SDL_SetRenderDrawColor( R, 255, 0, 0, 255 );
-    for (int i = 0; i < hs; ++i){
-        SDL_FRect rct = (SDL_FRect){ 0, F->pos.y - F->anchors[frm].y + F->hurtboxes[frm][i].y,
-                                     F->hurtboxes[frm][i].w,  F->hurtboxes[frm][i].h };
-        if( F->direcao < 0 ){
-            rct.x = F->pos.x + (2 * F->anchors[frm].x) - F->hurtboxes[frm][i].x - F->hurtboxes[frm][i].w;
-        } else{
-            rct.x = F->pos.x - F->anchors[frm].x + F->hurtboxes[frm][i].x;
-
+    if( F->hurtboxes[frm] ){
+        hs = vector_size( F->hurtboxes[frm] );
+        SDL_SetRenderDrawColor( R, 255, 0, 0, 255 );
+        for (int i = 0; i < hs; ++i){
+            SDL_FRect rct = fighter_box_to_world(F, F->hurtboxes[frm] + i);
+            rct = apply_transform_frect( &rct, &T ); // PARA A CÂMERA
+            SDL_RenderRect( R, &rct );
         }
-        SDL_RenderRect( R, &rct );
     }
 }
 
@@ -490,7 +483,7 @@ int main(int argc, char *argv[]){
     Load_fighter( R, &P1, "Assets/Abilli" );
     P1.pos = v2d( 100, FLOOR_Y );
     P1.walkspeed = 15;
-    P1.jumppower = -100;
+    P1.jumppower = -35;
     P1.direcao = 0;
 
     Fighter P2 = {0};
@@ -499,7 +492,7 @@ int main(int argc, char *argv[]){
     Load_fighter( R, &P2, "Assets/Abilli" );
     P2.pos = v2d( width-100, FLOOR_Y );
     P2.walkspeed = 15;
-    P2.jumppower = -70;
+    P2.jumppower = -35;
     P2.direcao = 1;
 
 
