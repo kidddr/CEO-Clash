@@ -61,3 +61,16 @@
 >walk[12]: file: walk_0012.png; anchor: 634, 689  hitbox: 586, 147, 149, 546
 >walk[13]: file: walk_0013.png; anchor: 608, 689  hitbox: 584, 150, 157, 539
 >walk[14]: file: walk_0014.png; anchor: 602, 690  hitbox: 583, 153, 164, 531
+>dash[0]: file: dash_0000.png; anchor: 615, 679  hitbox: 574, 122, 187, 559
+>dash[1]: file: dash_0001.png; anchor: 611, 675  hitbox: 614, 198, 160, 497
+>dash[2]: file: dash_0002.png; anchor: 571, 669  hitbox: 681, 125, 120, 555
+>dash[3]: file: dash_0003.png; anchor: 581, 674  hitbox: 634, 195, 91, 501
+>dash[4]: file: dash_0004.png; anchor: 577, 675  hitbox: 465, 129, 315, 370
+>dash[5]: file: dash_0005.png; anchor: 574, 675  hitbox: 510, 164, 249, 346
+>dash[6]: file: dash_0006.png; anchor: 574, 677  hitbox: 535, 164, 209, 371
+>dash[7]: file: dash_0007.png; anchor: 571, 684  hitbox: 581, 129, 199, 500
+>dash[8]: file: dash_0008.png; anchor: 569, 681  hitbox: 584, 149, 187, 494
+>dash[9]: file: dash_0009.png; anchor: 592, 690  hitbox: 566, 140, 183, 556
+>dash[10]: file: dash_0010.png; anchor: 593, 689  hitbox: 581, 134, 168, 577
+>dash[11]: file: dash_0011.png; anchor: 640, 666  hitbox: 578, 156, 150, 530
+>dash[12]: file: dash_0012.png; anchor: 640, 669  hitbox: 581, 123, 145, 554

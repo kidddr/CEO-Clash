@@ -30,9 +30,9 @@ float FLOOR_Y = 0;
 Transform T;
 
 // STATES
-#define NUM_STATES 8
-enum{ IDLE, WALK, JUMP, FALL, LAND, CROUCH, ATTACK, BEATEN };
-const char state_names [NUM_STATES][24] = { ">idle", ">walk", ">jump", ">fall", ">land", ">crouch", ">attack", ">beaten" };
+#define NUM_STATES 9
+enum{ IDLE, WALK, JUMP, FALL, LAND, CROUCH, ATTACK, BEATEN, DASH };
+const char state_names [NUM_STATES][24] = { ">idle", ">walk", ">jump", ">fall", ">land", ">crouch", ">attack", ">beaten", ">dash" };
 
 
 typedef struct {
@@ -55,6 +55,8 @@ typedef struct {
                      // false = meu corpo foi arremessado por forcas externas
 
     float walkspeed;
+    float dashspeed;
+    int dashtime;
     float jumppower;
 
 } Fighter;
@@ -185,7 +187,7 @@ bool Fighter_no_ar( Fighter *F ){
     return F->state == JUMP || F->state == FALL;
 }
 
-void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA ){
+void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA, bool cdash ){
 
     vec2d desloc = v2dzero;
 
@@ -193,6 +195,9 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA ){
         cr = false;
         cl = false;
     }
+
+    //cl ou cr SOMADO ao cdash deloca player, moda de qualquer estado pra dash...qualquer estado mesmo?
+    //oq triga o cl ou cr?? para trigar o cdash
 
     // can we jump or attack?
     if( F->state == IDLE || F->state == WALK ){
@@ -209,7 +214,13 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA ){
         if( cd && !Fighter_no_ar(F) ){
             F->state = CROUCH; F->frame = 0;
         }
-    }
+        if( (cr || cl) && cdash ){
+            F->vel = v2d( F->dashspeed, 0 );
+            F->no_controle = false;
+            F->direcao = (cr - cl);
+            F->state = DASH; F->frame = 0;
+        }
+}
 
 
 
@@ -258,6 +269,13 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA ){
             break;
 
         case CROUCH:
+
+            if( cd ){
+                F->state = CROUCH;
+            }
+            else{
+                F->state = IDLE; F->frame = 0;
+            }
             
             break;
 
@@ -267,6 +285,17 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA ){
 
         case BEATEN:
             
+            break;
+
+        case DASH:
+
+            desloc.x =  F->direcao * F->dashspeed;
+            F->dashtime -= 1;
+
+            if( F->dashtime == 0 ){
+                F->state = IDLE; F->frame = 0;
+            }
+
             break;
     }
     
@@ -411,7 +440,7 @@ void Fighter_tick_frame( Fighter *F ){
         switch( F->state ){
             case IDLE:
             case CROUCH:
-                F->state = IDLE; F->frame = 0;
+                F->frame = 0;
                 break;
             case WALK:// Loop animation
                 F->frame = 0;
@@ -420,6 +449,9 @@ void Fighter_tick_frame( Fighter *F ){
             case BEATEN:
             case LAND:
             case ATTACK:// finish animation
+                F->state = IDLE; F->frame = 0;
+                break;
+            case DASH:
                 F->state = IDLE; F->frame = 0;
                 break;
 
@@ -482,8 +514,9 @@ int main(int argc, char *argv[]){
     Fighter P1 = {0};
     Load_fighter( R, &P1, "Assets/Abilli" );
     P1.pos = v2d( 100, FLOOR_Y );
-    P1.walkspeed = 15;
-    P1.jumppower = -35;
+    P1.walkspeed = 9;
+    P1.dashspeed = 37;
+    P1.jumppower = -46;
     P1.direcao = 0;
 
     Fighter P2 = {0};
@@ -491,17 +524,18 @@ int main(int argc, char *argv[]){
 
     Load_fighter( R, &P2, "Assets/Abilli" );
     P2.pos = v2d( width-100, FLOOR_Y );
-    P2.walkspeed = 15;
-    P2.jumppower = -35;
+    P2.walkspeed = 9;
+    P2.dashspeed = 37;
+    P2.jumppower = -46;
     P2.direcao = 1;
 
 
-    bool p1u = 0, p1d = 0, p1l = 0, p1r = 0, p1_A = 0;// up down left right
-    bool p2u = 0, p2d = 0, p2l = 0, p2r = 0, p2_A = 0;
+    bool p1u = 0, p1d = 0, p1l = 0, p1r = 0, p1_A = 0, p1_dash = 0; // up down left right
+    bool p2u = 0, p2d = 0, p2l = 0, p2r = 0, p2_A = 0, p2_dash = 0;
 
     
     int frame_period = SDL_lround( 1000 / 60.0 );
-    int animation_period = SDL_lround( 1000 / 10.0 );
+    int animation_period = SDL_lround( 1000 / 15.0 );
     Uint64 next_ani_tick = SDL_GetTicks() + animation_period;
 
 
@@ -520,12 +554,14 @@ int main(int argc, char *argv[]){
                     else if( event.key.key == 'a' ) p1l = 1;
                     else if( event.key.key == 'd' ) p1r = 1;
                     else if( event.key.key == 'e' ) p1_A = 1;
+                    else if( event.key.key == 'q') p1_dash = 1;
 
                     else if( event.key.key == SDLK_UP    ) p2u = 1;
                     else if( event.key.key == SDLK_DOWN  ) p2d = 1;
                     else if( event.key.key == SDLK_LEFT  ) p2l = 1;
                     else if( event.key.key == SDLK_RIGHT ) p2r = 1;
                     else if( event.key.key == 'm' ) p2_A = 1;
+                    else if( event.key.key == 'n') p2_dash = 1;
                     /*else if( event.key.key == SDLK_SPACE ) {
                          if (!P1.atacando && P1.ataque_cooldown == 0) {
                               P1.atacando = true;
@@ -545,12 +581,14 @@ int main(int argc, char *argv[]){
                     else if( event.key.key == 'a' ) p1l = 0;
                     else if( event.key.key == 'd' ) p1r = 0;
                     else if( event.key.key == 'e' ) p1_A = 0;
+                    else if( event.key.key == 'q') p1_dash = 0;
 
                     else if( event.key.key == SDLK_UP    ) p2u = 0;
                     else if( event.key.key == SDLK_DOWN  ) p2d = 0;
                     else if( event.key.key == SDLK_LEFT  ) p2l = 0;
                     else if( event.key.key == SDLK_RIGHT ) p2r = 0;
                     else if( event.key.key == 'm' ) p2_A = 0;
+                    else if( event.key.key == 'n') p2_dash = 0;
                     break;
             }
         }
@@ -558,33 +596,49 @@ int main(int argc, char *argv[]){
         SDL_SetRenderDrawColor( R, 200,200,200,255 );
         SDL_RenderClear(R);
 
-        float fighters_dist = SDL_fabsf( P1.pos.x - P2.pos.x );
-        fighters_dist *= 1.2;
-        if( fighters_dist < width ) T.s = 1;
+
+
+///////////////////CAMERA
+
+        float fighters_distx = SDL_fabsf( P1.pos.x - P2.pos.x );
+        fighters_distx *= 1.0;
+        float fighters_disty = SDL_fabsf( P1.pos.y - P2.pos.y );
+        fighters_disty *= 1.0;
+        
+        if( fighters_distx < width ) T.s = 1;
         else{
-            T.s = width / fighters_dist;
+            T.s = width / fighters_distx;
         }
+        if( fighters_disty < height ) T.s = 1;
+        else{
+            T.s = height / fighters_disty;
+        }
+
         set_scale( &T, T.s );
-        float camx = ((P1.pos.x + P2.pos.x) / 2.0f) - (fighters_dist / 2.0f);
+        float camx = ((P1.pos.x + P2.pos.x) / 2.5f) - (fighters_distx / 2.5f);
         if( camx < 0 ) camx = 0;
-        if( camx > fundo0w - fighters_dist ) camx = fundo0w - fighters_dist;
+        if( camx > fundo0w - fighters_distx ) camx = fundo0w - fighters_distx;
         T.tx = camx;
-        float floor_world_y = fundo0h - 100;
+        float floor_world_y = fundo0h - 200;
         float visible_height = height * T.invs;
         float camy = floor_world_y - FLOOR_Y * T.invs;
         if (camy < 0) camy = 0;
         if (camy > fundo0h - visible_height) camy = fundo0h - visible_height;
         T.ty = FLOOR_Y - (FLOOR_Y * T.invs);
 
-        //if(camy < 0)  ;
+////////////////////
+
+
+
+
 
         SDL_FRect src_rect = {camx, camy, width * T.invs, height * T.invs};
         SDL_RenderTexture( R, Fundo0, &src_rect, NULL );
 
 
-        Fighter_control( &P1, p1u, p1d, p1l, p1r, p1_A );
+        Fighter_control( &P1, p1u, p1d, p1l, p1r, p1_A, p1_dash );
 
-        Fighter_control( &P2, p2u, p2d, p2l, p2r, p2_A );
+        Fighter_control( &P2, p2u, p2d, p2l, p2r, p2_A, p2_dash );
         
         // colisao entre os Fighters
         SDL_FRect P1bbox = get_Fighter_boundingbox_now( &P1 );
@@ -632,7 +686,7 @@ int main(int argc, char *argv[]){
         SDL_SetRenderDrawColor( R, 0,0,0,255 );
         SDL_RenderLine( R, 0, FLOOR_Y, width, FLOOR_Y );
 
-        //SDL_RenderTexture( R, Fundo1, &src_rect, NULL );
+        SDL_RenderTexture( R, Fundo1, &src_rect, NULL );
 
         //int flip2;
         //if( P2.direcao > 0 ) flip2 = 1;
