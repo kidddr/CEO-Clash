@@ -601,9 +601,9 @@ int main(int argc, char *argv[]){
 ///////////////////CAMERA
 
         float fighters_distx = SDL_fabsf( P1.pos.x - P2.pos.x );
-        fighters_distx *= 1.0;
+        fighters_distx *= 2.0;
         float fighters_disty = SDL_fabsf( P1.pos.y - P2.pos.y );
-        fighters_disty *= 1.0;
+        fighters_disty *= 1.8;
         
         if( fighters_distx < width ) T.s = 1;
         else{
@@ -615,10 +615,13 @@ int main(int argc, char *argv[]){
         }
 
         set_scale( &T, T.s );
-        float camx = ((P1.pos.x + P2.pos.x) / 2.5f) - (fighters_distx / 2.5f);
+        float camx = ((P1.pos.x + P2.pos.x) / 2.0f) - (fighters_distx / 2.0f);
         if( camx < 0 ) camx = 0;
         if( camx > fundo0w - fighters_distx ) camx = fundo0w - fighters_distx;
         T.tx = camx;
+        //T.cx = ???;
+        //um zoom com margem, centralizar
+
         float floor_world_y = fundo0h - 200;
         float visible_height = height * T.invs;
         float camy = floor_world_y - FLOOR_Y * T.invs;
