@@ -23,8 +23,8 @@ char buf [buflen];
 #define GetTexSz(T) float tw, th; \
     SDL_GetTextureSize(T, &tw, &th);
 
-float WALL_L = 0;
-float WALL_R = 0;
+//map starts at 0
+float MAPw = 0;
 float FLOOR_Y = 0;
 
 Transform T;
@@ -86,14 +86,14 @@ void Load_fighter( SDL_Renderer *R, Fighter *F, char *path ){
                 break;
             }
             state_counts[ std.indices[S] ] += 1;
-            SDL_Log( "std.indices[%d] = %d, sc: %d", S, std.indices[S], state_counts[std.indices[S]] );
+            //SDL_Log( "std.indices[%d] = %d, sc: %d", S, std.indices[S], state_counts[std.indices[S]] );
         }
 
         F->state_frame_offsets = SDL_malloc( (NUM_STATES + 1) * sizeof(int) );
         F->state_frame_offsets[0] = 0;
         for (int s = 1; s < NUM_STATES; ++s ){
             F->state_frame_offsets[s] = F->state_frame_offsets[s-1] + state_counts[s-1];
-            SDL_Log( "sfo[%d] = %d", s, F->state_frame_offsets[s] );
+            //SDL_Log( "sfo[%d] = %d", s, F->state_frame_offsets[s] );
         }
         F->state_frame_offsets[NUM_STATES] = F->state_frame_offsets[NUM_STATES-1] + state_counts[NUM_STATES-1];
 
@@ -220,7 +220,7 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA, b
             F->direcao = (cr - cl);
             F->state = DASH; F->frame = 0;
         }
-}
+    }
 
 
 
@@ -313,11 +313,11 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA, b
         F->state = LAND; F->frame = 0;
     }
 
-    if( F->pos.x < WALL_L ){// colisao com a parede Left
-        F->pos.x = WALL_L;
+    if( F->pos.x < 0 ){// colisao com a parede Left
+        F->pos.x = 0;
     }
-    if( F->pos.x > WALL_R ){// colisao com a parede Right
-        F->pos.x = WALL_R;
+    if( F->pos.x > MAPw ){// colisao com a parede Right
+        F->pos.x = MAPw;
     }
 
     /*
@@ -326,11 +326,11 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA, b
     for (int h = 0; h < hn; ++h ){
         SDL_FRect *hitbox = hbs + h;
 
-        if( F->pos.x - 0.5 * hitbox->w < WALL_L ){// colisao com a parede Left
-            F->pos.x = WALL_L + 0.5 * hitbox->w;
+        if( F->pos.x - 0.5 * hitbox->w < 0 ){// colisao com a parede Left
+            F->pos.x = 0 + 0.5 * hitbox->w;
         }
-        if( F->pos.x + 0.5 * hitbox->w > WALL_R ){// colisao com a parede Right
-            F->pos.x = WALL_R - 0.5 * hitbox->w;
+        if( F->pos.x + 0.5 * hitbox->w > MAPw ){// colisao com a parede Right
+            F->pos.x = MAPw - 0.5 * hitbox->w;
         }
     }
     //hitbox->x = F->pos.x - 0.5 * hitbox->w;
@@ -490,8 +490,7 @@ int main(int argc, char *argv[]){
     SDL_GetWindowSize( window, &width, &height );
     cx = width / 2;
     cy = height / 2;
-    T.cx = cx;
-    T.cy = cy;
+    
 
     SDL_srand(0);
 
@@ -505,10 +504,16 @@ int main(int argc, char *argv[]){
     SDL_GetTextureSize(Fundo0, &fundo0w, &fundo0h);
     SDL_GetTextureSize(Fundo1, &fundo0w, &fundo0h);
 
-    WALL_R = fundo0w;
+    MAPw = fundo0w;
     FLOOR_Y = height - 100;
+    float floor_world_y = fundo0h - 200;
+
+    float minzoomout = width / (1.2 * MAPw);
+    SDL_Log("mz %g", minzoomout);
 
     T = (Transform){0,0,0,0,1,1};
+    T.cx = cx;
+    T.cy = 0;
 
     //  HITBOXES PERSONAGENS
 
@@ -602,37 +607,24 @@ int main(int argc, char *argv[]){
 
 ///////////////////CAMERA
 
-
-
         float fighters_distx = SDL_fabsf( P1.pos.x - P2.pos.x );
-        fighters_distx *= 2.0;
         float fighters_disty = SDL_fabsf( P1.pos.y - P2.pos.y );
-        fighters_disty *= 1.8;
-        
-        /*
-        if( fighters_distx < width ) T.s = 1;
-        else{
-            T.s = width / fighters_distx;
-        }
-        if( fighters_disty < height ) T.s = 1;
-        else{
-            T.s = height / fighters_disty;
-        }
-        */
 
-        set_scale( &T, T.s );
         float camx = ((P1.pos.x + P2.pos.x) / 2.0f);
         T.tx = camx;
-        //T.cx = (P1.pos.x + P2.pos.x);
-        //um zoom com margem, centralizar
 
-        float floor_world_y = fundo0h - 200;
+        //SE A CAMERA
+
+       
         float visible_height = height * T.invs;
         float camy = floor_world_y - FLOOR_Y * T.invs;
         if (camy < 0) camy = 0;
         if (camy > fundo0h - visible_height) camy = fundo0h - visible_height;
         T.ty = FLOOR_Y - (FLOOR_Y * T.invs);
-        SDL_Log(">>  %lg, %lg, %g", P1.pos.x, P2.pos.x, camx );
+        //SDL_Log(">>  %lg, %lg, %g", P1.pos.x, P2.pos.x, camx );
+
+        set_scale ( &T, constrainD(width / (1.2 * fighters_distx), minzoomout, 1) );
+
 
 ////////////////////
 
