@@ -490,6 +490,8 @@ int main(int argc, char *argv[]){
     SDL_GetWindowSize( window, &width, &height );
     cx = width / 2;
     cy = height / 2;
+    T.cx = cx;
+    T.cy = cy;
 
     SDL_srand(0);
 
@@ -600,11 +602,14 @@ int main(int argc, char *argv[]){
 
 ///////////////////CAMERA
 
+
+
         float fighters_distx = SDL_fabsf( P1.pos.x - P2.pos.x );
         fighters_distx *= 2.0;
         float fighters_disty = SDL_fabsf( P1.pos.y - P2.pos.y );
         fighters_disty *= 1.8;
         
+        /*
         if( fighters_distx < width ) T.s = 1;
         else{
             T.s = width / fighters_distx;
@@ -613,13 +618,12 @@ int main(int argc, char *argv[]){
         else{
             T.s = height / fighters_disty;
         }
+        */
 
         set_scale( &T, T.s );
-        float camx = ((P1.pos.x + P2.pos.x) / 2.0f) - (fighters_distx / 2.0f);
-        if( camx < 0 ) camx = 0;
-        if( camx > fundo0w - fighters_distx ) camx = fundo0w - fighters_distx;
+        float camx = ((P1.pos.x + P2.pos.x) / 2.0f);
         T.tx = camx;
-        //T.cx = ???;
+        //T.cx = (P1.pos.x + P2.pos.x);
         //um zoom com margem, centralizar
 
         float floor_world_y = fundo0h - 200;
@@ -628,6 +632,7 @@ int main(int argc, char *argv[]){
         if (camy < 0) camy = 0;
         if (camy > fundo0h - visible_height) camy = fundo0h - visible_height;
         T.ty = FLOOR_Y - (FLOOR_Y * T.invs);
+        SDL_Log(">>  %lg, %lg, %g", P1.pos.x, P2.pos.x, camx );
 
 ////////////////////
 
