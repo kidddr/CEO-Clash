@@ -30,10 +30,9 @@ float FLOOR_Y = 0;
 Transform T;
 
 // STATES
-#define NUM_STATES 9
-enum{ IDLE, WALK, JUMP, FALL, LAND, CROUCH, ATTACK, BEATEN, DASH };
-const char state_names [NUM_STATES][24] = { ">idle", ">walk", ">jump", ">fall", ">land", ">crouch", ">attack", ">beaten", ">dash" };
-
+#define NUM_STATES 17
+enum{ IDLE, WALK, JUMP, FALL, LLAUNCH, CROUCH, ATK11, ATK12, ATK13, ATK14, BEATEN, DASH, HLAUNCH, LAND, GROUND, GETUP, ADASH };
+const char state_names[NUM_STATES][24] = { ">idle", ">walk", ">jump", ">fall", ">llaunch", ">crouch", ">atk11", ">atk12", ">atk13", ">atk14", ">beaten", ">dash", ">hlaunch", ">land", ">ground", ">getup", ">adash" };
 
 typedef struct {
 
@@ -58,6 +57,13 @@ typedef struct {
     float dashspeed;
     int dashtime;
     float jumppower;
+
+    int combo_step;        // golpe atual do combo (0 = fora de combo)
+    int combo_cancel_frame;
+    int imunidade;
+
+    bool segurar_ground;
+
 
 } Fighter;
 
@@ -184,7 +190,7 @@ void Load_fighter( SDL_Renderer *R, Fighter *F, char *path ){
 }
 
 bool Fighter_no_ar( Fighter *F ){
-    return F->state == JUMP || F->state == FALL;
+    return F->state == JUMP || F->state == FALL || F->state == HLAUNCH;
 }
 
 void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA, bool cdash ){
@@ -196,9 +202,6 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA, b
         cl = false;
     }
 
-    //cl ou cr SOMADO ao cdash deloca player, moda de qualquer estado pra dash...qualquer estado mesmo?
-    //oq triga o cl ou cr?? para trigar o cdash
-
     // can we jump or attack?
     if( F->state == IDLE || F->state == WALK ){
         if( cu ){
@@ -208,19 +211,27 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA, b
                 F->state = JUMP; F->frame = 0;
             }
         }
-        if( cA && !Fighter_no_ar(F) ){
-            F->state = ATTACK; F->frame = 0;
+        
+
+
+    if( cA && !Fighter_no_ar(F) ){
+        if( F->state != ATK11 && F->state != ATK12 &&
+            F->state != ATK13 && F->state != ATK14 ){
+            F->state = ATK11; F->frame = 0;
+            F->combo_step = 1;
         }
+    }
+
         if( cd && !Fighter_no_ar(F) ){
             F->state = CROUCH; F->frame = 0;
         }
         if( (cr || cl) && cdash ){
-            F->vel = v2d( F->dashspeed, 0 );
-            F->no_controle = false;
+            F->vel = v2dzero;          
             F->direcao = (cr - cl);
+            F->dashtime = 50;      
             F->state = DASH; F->frame = 0;
         }
-    }
+}
 
 
 
@@ -279,39 +290,123 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA, b
             
             break;
 
-        case ATTACK:
-    
+        case ATK11:
+        case ATK12:
+        case ATK13:
+            if( cA && F->frame >= F->combo_cancel_frame ){
+                if( F->combo_step >= 1 && F->combo_step < 4 ){
+                    F->combo_step++;
+                    if( F->combo_step == 2 ){
+                        F->state = ATK12; F->frame = 0;
+                    }
+                    else if( F->combo_step == 3 ){
+                        desloc.x = F->direcao * 160; // movimento natural de atk, um passo
+                        F->state = ATK13; F->frame = 0;
+                    }
+                    else if( F->combo_step == 4 ){
+                        desloc.x = F->direcao * 60;
+                        F->state = ATK14; F->frame = 0;
+                    }
+                }
+            }
+            break;
+        
+        case ATK14:
+            // Cancel pro dash pra continuar combo de 5 atks
+            if( cdash && (cr || cl) && F->frame >= F->combo_cancel_frame ){
+                F->vel = v2dzero;
+                F->direcao = (cr - cl);
+                F->dashtime = 50;
+                F->dashspeed = 120; // mais rápido que o HLAUNCH pra acertar o atk5
+                F->state = DASH; F->frame = 0;
+            }
             break;
 
         case BEATEN:
             
             break;
 
-        case DASH:
 
-            desloc.x =  F->direcao * F->dashspeed;
+
+       case DASH:
+            desloc.x = F->direcao * F->dashspeed;
             F->dashtime -= 1;
-
+        
+            if( cA && F->dashtime > 25 ){
+                F->vel.x = F->direcao * F->dashspeed;
+                F->vel.y = 0;
+                F->dashspeed = 37;
+                F->state = ADASH; F->frame = 0;
+                break;
+            }
+        
             if( F->dashtime == 0 ){
+                F->dashspeed = 37;
                 F->state = IDLE; F->frame = 0;
             }
+            break;
 
+        
+
+        case ADASH:
+            
+            break;
+
+
+
+        case HLAUNCH:
+            F->vel.x *= 0.80; // desacelera suavemente
+            if( SDL_fabsf(F->vel.x) < 1.0f ) F->vel.x = 0;
+            break;
+
+        case LLAUNCH:
+             F->vel.x *= 0.70;
+            if( SDL_fabsf(F->vel.x) < 0.5f ) F->vel.x = 0;
+            break;
+
+
+        case GROUND:
+            F->segurar_ground = cd;
+            break;
+        
+
+        case GETUP:
             break;
     }
     
+
+
+
+
+
+
+
 
     if( desloc.x != 0 ){// no chao
         F->pos.x += desloc.x;
         F->direcao = (desloc.x > 0)-(desloc.x < 0);
     }
 
+    if( F->vel.x != 0 ){
+        F->pos.x += F->vel.x;
+    // não atualiza direcao aqui pra manter a cara pro lado que estava
+    }
+
     F->pos.y += F->vel.y;
 
+
     if( F->pos.y > FLOOR_Y ){
-        F->pos.y = FLOOR_Y;
-        F->vel.y = 0;
+    F->pos.y = FLOOR_Y;
+    F->vel.y = 0;
+    F->vel.x = 0;
+
+    if( F->state == HLAUNCH ){
+        F->state = LLAUNCH; F->frame = 0;
+    } else if( F->state == JUMP || F->state == FALL ){
         F->state = LAND; F->frame = 0;
     }
+}
+
 
     if( F->pos.x < 0 ){// colisao com a parede Left
         F->pos.x = 0;
@@ -363,9 +458,18 @@ SDL_FRect get_Fighter_dstrct_now( Fighter *F ){
     return dst;
 }
 
+
+
 SDL_FRect get_Fighter_boundingbox_now( Fighter *F ){
     int frm = F->state_frame_offsets[ F->state ] + F->frame;
     int hs = vector_size( F->hitboxes[frm] );
+
+
+    if( hs == 0 || F->hitboxes[frm] == NULL ){
+        // Retorna uma box vazia na posição do personagem
+        return (SDL_FRect){ F->pos.x, F->pos.y, 0, 0 };
+    }
+
     SDL_FRect box = fighter_box_to_world( F, F->hitboxes[frm]+0 );
     for (int i = 1; i < hs; ++i){
         box = add_rects( &box, F->hitboxes[frm]+i );
@@ -373,25 +477,54 @@ SDL_FRect get_Fighter_boundingbox_now( Fighter *F ){
     return box;
 }
 
+
+
+
 void fighters_hurt( Fighter *attacker, Fighter *defender ){
+    bool golpe_forte = ( attacker->state == ATK14 || attacker->state == ADASH );
+
+    if( defender->imunidade == 1 ) return;
+
+    // imunidade 2 é só pro golpe forte passar, mas NÃO fecha a janela ainda
+    if( defender->imunidade == 2 && !golpe_forte ) return;
+
     int Afrm = attacker->state_frame_offsets[ attacker->state ] + attacker->frame;
     int Dfrm = defender->state_frame_offsets[ defender->state ] + defender->frame;
     int hurts = vector_size( attacker->hurtboxes[Afrm] );
-    int hits = vector_size( defender->hitboxes[Dfrm] );
+    int hits  = vector_size( defender->hitboxes[Dfrm] );
+
     for (int a = 0; a < hurts; ++a) {
         for( int d = 0; d < hits; ++d ){
             SDL_FRect abox = fighter_box_to_world( attacker, attacker->hurtboxes[Afrm] + a );
             SDL_FRect dbox = fighter_box_to_world( defender, defender->hitboxes[Dfrm] + d );
+
             if( SDL_FRect_overlap( &abox, &dbox ) ){
                 // acertou o ataque!!!
-                //defender->hp -= 5;
-                defender->state = BEATEN; defender->frame = 0;
-                SDL_Log("Ai, me bateu!!");
+                  defender->direcao = (defender->pos.x < attacker->pos.x) ? 1 : -1; //vira personagem
 
+                if( golpe_forte ){
+                    int dir = (attacker->direcao >= 0) ? 1 : -1;
+                    bool segundo_lancamento = (defender->imunidade == 2);
+                    float forca = segundo_lancamento ? 550.0f : 370.0f;
+                    defender->vel.x = dir * forca;
+                    defender->vel.y = 0;
+                    defender->pos.y = FLOOR_Y;
+                    defender->no_controle = false;
+                    defender->imunidade = 2; // mantém janela aberta pro próximo HLAUNCH
+                    defender->state = HLAUNCH; defender->frame = 0;
+                } else {
+                    defender->imunidade = 1;
+                    defender->state = BEATEN; defender->frame = 0;
+                    SDL_Log("Ai, me bateu!!");
+                }
+
+                return;
             }
         }
     }
 }
+
+
 
 
 void display_Fighter( SDL_Renderer *R, Fighter *F ){
@@ -430,6 +563,10 @@ void display_Fighter_boxes( SDL_Renderer *R, Fighter *F ){
 }
 
 
+
+
+
+
 void Fighter_tick_frame( Fighter *F ){
 
     F->frame += 1;
@@ -446,17 +583,66 @@ void Fighter_tick_frame( Fighter *F ){
                 F->frame = 0;
                 break;
 
-            case BEATEN:
-            case LAND:
-            case ATTACK:// finish animation
+            case ATK11:
+            case ATK12:
+            case ATK13:
+            case ATK14:
+                F->combo_step = 0;
                 F->state = IDLE; F->frame = 0;
                 break;
+
             case DASH:
                 F->state = IDLE; F->frame = 0;
                 break;
 
-            default:// just stay in the last frame
-                F->frame -= 1;
+
+            case ADASH:
+                F->vel = v2dzero;
+                F->combo_step = 0;
+                F->state = IDLE; F->frame = 0;
+                break;
+
+
+            case HLAUNCH:
+                F->state = LLAUNCH; F->frame = 0;
+                break;
+
+            case LLAUNCH:
+                F->state = GROUND; F->frame = 0;
+                F->imunidade = 1; // fecha possiblidade de combo para o GROUND ser imune
+                break;
+
+
+            
+            case GROUND:
+                if( F->segurar_ground ){
+                    F->frame -= 1;
+                } else {
+                    F->state = GETUP; F->frame = 0;
+                }
+                break;
+            
+            case GETUP:
+                F->state = IDLE; F->frame = 0;
+                F->imunidade = 0; // vulneravel de novo
+                break;
+            
+            case BEATEN:
+                F->state = IDLE; F->frame = 0;
+                F->no_controle = false;
+                F->imunidade = 0;
+                break;
+            
+            case LAND:
+                F->state = IDLE; F->frame = 0;
+                F->no_controle = false;
+                F->imunidade = 0;
+                break;
+
+
+
+            default:
+                F->frame -= 1; // pra ficar no ultimo frame por padrão
                 break;
 
             
@@ -490,7 +676,6 @@ int main(int argc, char *argv[]){
     SDL_GetWindowSize( window, &width, &height );
     cx = width / 2;
     cy = height / 2;
-    
 
     SDL_srand(0);
 
@@ -498,22 +683,34 @@ int main(int argc, char *argv[]){
 
     //TEXTURAS
 
-    SDL_Texture *Fundo0 = IMG_LoadTexture(R,"Assets/AdD1.png");
-    SDL_Texture *Fundo1 = IMG_LoadTexture(R,"Assets/AdD2.png");
+    SDL_Texture *Fundo0 = IMG_LoadTexture(R,"Assets/add/add0.png");
+    SDL_Texture *Fundo1 = IMG_LoadTexture(R,"Assets/add/add1.png");
+    SDL_Texture *Fundo2 = IMG_LoadTexture(R,"Assets/add/add2.png");
+    SDL_Texture *Fundo3 = IMG_LoadTexture(R,"Assets/add/add3.png");
+    SDL_Texture *Fundo4 = IMG_LoadTexture(R,"Assets/add/add4.png");
+    SDL_Texture *Fundo5 = IMG_LoadTexture(R,"Assets/add/add5.png");
     float fundo0w, fundo0h;
     SDL_GetTextureSize(Fundo0, &fundo0w, &fundo0h);
     SDL_GetTextureSize(Fundo1, &fundo0w, &fundo0h);
+    SDL_GetTextureSize(Fundo2, &fundo0w, &fundo0h);
+    SDL_GetTextureSize(Fundo3, &fundo0w, &fundo0h);
+    SDL_GetTextureSize(Fundo4, &fundo0w, &fundo0h);
+    SDL_GetTextureSize(Fundo5, &fundo0w, &fundo0h);
+
 
     MAPw = fundo0w;
     FLOOR_Y = height - 100;
     float floor_world_y = fundo0h - 200;
-
     float minzoomout = width / (1.2 * MAPw);
     SDL_Log("mz %g", minzoomout);
+
 
     T = (Transform){0,0,0,0,1,1};
     T.cx = cx;
     T.cy = 0;
+
+
+
 
     //  HITBOXES PERSONAGENS
 
@@ -522,8 +719,9 @@ int main(int argc, char *argv[]){
     Load_fighter( R, &P1, "Assets/Abilli" );
     P1.pos = v2d( 100, FLOOR_Y );
     P1.walkspeed = 9;
-    P1.dashspeed = 37;
+    P1.dashspeed = 50;
     P1.jumppower = -46;
+    P1.combo_cancel_frame = 5;
     P1.direcao = 0;
 
     Fighter P2 = {0};
@@ -532,8 +730,9 @@ int main(int argc, char *argv[]){
     Load_fighter( R, &P2, "Assets/Abilli" );
     P2.pos = v2d( width-100, FLOOR_Y );
     P2.walkspeed = 9;
-    P2.dashspeed = 37;
+    P2.dashspeed = 50;
     P2.jumppower = -46;
+    P2.combo_cancel_frame = 5;
     P2.direcao = 1;
 
 
@@ -605,41 +804,45 @@ int main(int argc, char *argv[]){
 
 
 
+
+
 ///////////////////CAMERA
 
         float fighters_distx = SDL_fabsf( P1.pos.x - P2.pos.x );
         float fighters_disty = SDL_fabsf( P1.pos.y - P2.pos.y );
 
+        set_scale( &T, T.s );
         float camx = ((P1.pos.x + P2.pos.x) / 2.0f);
         T.tx = camx;
 
-        //SE A CAMERA
-
-       
         float visible_height = height * T.invs;
         float camy = floor_world_y - FLOOR_Y * T.invs;
         if (camy < 0) camy = 0;
         if (camy > fundo0h - visible_height) camy = fundo0h - visible_height;
         T.ty = FLOOR_Y - (FLOOR_Y * T.invs);
-        //SDL_Log(">>  %lg, %lg, %g", P1.pos.x, P2.pos.x, camx );
-
         set_scale ( &T, constrainD(width / (1.2 * fighters_distx), minzoomout, 1) );
 
+        
+        //SDL_Log(">>  %lg, %lg, %g", P1.pos.x, P2.pos.x, camx );
 
 ////////////////////
 
 
 
 
-
         SDL_FRect src_rect = {camx, camy, width * T.invs, height * T.invs};
         SDL_RenderTexture( R, Fundo0, &src_rect, NULL );
-
+        SDL_RenderTexture( R, Fundo1, &src_rect, NULL );
+        SDL_RenderTexture( R, Fundo2, &src_rect, NULL );
+        SDL_RenderTexture( R, Fundo3, &src_rect, NULL );
+        SDL_RenderTexture( R, Fundo4, &src_rect, NULL );
 
         Fighter_control( &P1, p1u, p1d, p1l, p1r, p1_A, p1_dash );
 
         Fighter_control( &P2, p2u, p2d, p2l, p2r, p2_A, p2_dash );
         
+
+
         // colisao entre os Fighters
         SDL_FRect P1bbox = get_Fighter_boundingbox_now( &P1 );
         SDL_FRect P2bbox = get_Fighter_boundingbox_now( &P2 );
@@ -686,7 +889,7 @@ int main(int argc, char *argv[]){
         SDL_SetRenderDrawColor( R, 0,0,0,255 );
         SDL_RenderLine( R, 0, FLOOR_Y, width, FLOOR_Y );
 
-        SDL_RenderTexture( R, Fundo1, &src_rect, NULL );
+        SDL_RenderTexture( R, Fundo5, &src_rect, NULL );
 
         //int flip2;
         //if( P2.direcao > 0 ) flip2 = 1;

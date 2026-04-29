@@ -1,22 +1,22 @@
->attack[0]: file: atk11_0000.png; anchor: 661, 676  hitbox: 557, 177, 171, 484
->attack[1]: file: atk11_0001.png; anchor: 642, 665  hitbox: 592, 168, 155, 496
->attack[2]: file: atk11_0002.png; anchor: 627, 685  hitbox: 595, 173, 181, 511
->attack[3]: file: atk11_0003.png; anchor: 583, 679  hitbox: 637, 135, 194, 552  hurtbox: 846, 219, 225, 195
->attack[4]: file: atk11_0004.png; anchor: 582, 680  hitbox: 578, 144, 226, 537  hurtbox: 820, 250, 254, 169
->attack[5]: file: atk11_0005.png; anchor: 583, 680  hitbox: 589, 152, 222, 523  hurtbox: 822, 229, 246, 194
->attack[6]: file: atk11_0006.png; anchor: 570, 683  hitbox: 584, 152, 199, 537  hurtbox: 790, 381, 67, 105
->attack[7]: file: atk11_0007.png; anchor: 569, 684  hitbox: 580, 162, 166, 520  hurtbox: 774, 384, 85, 106
->attack[8]: file: atk11_0008.png; anchor: 642, 683  hitbox: 573, 144, 161, 537
+>atk11[0]: file: atk11_0000.png; anchor: 661, 676  hitbox: 557, 177, 171, 484
+>atk11[1]: file: atk11_0001.png; anchor: 642, 665  hitbox: 592, 168, 155, 496
+>atk11[2]: file: atk11_0002.png; anchor: 627, 685  hitbox: 595, 173, 181, 511
+>atk11[3]: file: atk11_0003.png; anchor: 583, 679  hitbox: 637, 135, 194, 552  hurtbox: 846, 219, 225, 195
+>atk11[4]: file: atk11_0004.png; anchor: 582, 680  hitbox: 578, 144, 226, 537  hurtbox: 820, 250, 254, 169
+>atk11[5]: file: atk11_0005.png; anchor: 583, 680  hitbox: 589, 152, 222, 523  hurtbox: 822, 229, 246, 194
+>atk11[6]: file: atk11_0006.png; anchor: 570, 683  hitbox: 584, 152, 199, 537  hurtbox: 790, 381, 67, 105
+>atk11[7]: file: atk11_0007.png; anchor: 569, 684  hitbox: 580, 162, 166, 520
+>atk11[8]: file: atk11_0008.png; anchor: 642, 683  hitbox: 573, 144, 161, 537
 >beaten[0]: file: beaten_0000.png; anchor: 617, 705  hitbox: 525, 132, 238, 549
 >beaten[1]: file: beaten_0001.png; anchor: 625, 695  hitbox: 535, 111, 230, 567
 >beaten[2]: file: beaten_0002.png; anchor: 617, 698  hitbox: 534, 150, 255, 524
->crouch[0]: file: crouch_0000.png; anchor: 429, 652  hitbox: 417, 377, 366, 260
->crouch[1]: file: crouch_0001.png; anchor: 429, 653  hitbox: 426, 402, 354, 233
->crouch[2]: file: crouch_0002.png; anchor: 431, 652  hitbox: 401, 438, 371, 205
->crouch[3]: file: crouch_0003.png; anchor: 432, 647  hitbox: 347, 426, 425, 218
->crouch[4]: file: crouch_0004.png; anchor: 434, 650  hitbox: 361, 434, 411, 198
->crouch[5]: file: crouch_0005.png; anchor: 434, 655  hitbox: 377, 423, 398, 218
->crouch[6]: file: crouch_0006.png; anchor: 434, 655  hitbox: 383, 413, 395, 219
+>crouch[0]: file: crouch_0000.png; anchor: 429, 652  hitbox: 314, 510, 490, 165
+>crouch[1]: file: crouch_0001.png; anchor: 429, 653  hitbox: 320, 523, 496, 166
+>crouch[2]: file: crouch_0002.png; anchor: 431, 652  hitbox: 320, 498, 488, 182
+>crouch[3]: file: crouch_0003.png; anchor: 432, 647  hitbox: 304, 481, 515, 202
+>crouch[4]: file: crouch_0004.png; anchor: 434, 650  hitbox: 326, 507, 493, 170
+>crouch[5]: file: crouch_0005.png; anchor: 434, 655  hitbox: 322, 525, 483, 165
+>crouch[6]: file: crouch_0006.png; anchor: 434, 655  hitbox: 313, 514, 503, 172
 >fall[0]: file: fall_0000.png; anchor: 620, 662  hitbox: 541, 128, 239, 547
 >fall[1]: file: fall_0001.png; anchor: 620, 666  hitbox: 544, 162, 231, 493
 >fall[2]: file: fall_0002.png; anchor: 625, 671  hitbox: 541, 147, 227, 555
@@ -74,3 +74,70 @@
 >dash[10]: file: dash_0010.png; anchor: 593, 689  hitbox: 581, 134, 168, 577
 >dash[11]: file: dash_0011.png; anchor: 640, 666  hitbox: 578, 156, 150, 530
 >dash[12]: file: dash_0012.png; anchor: 640, 669  hitbox: 581, 123, 145, 554
+>atk12[0]: file: atk12_0000.png; anchor: 595, 696  hitbox: 608, 220, 167, 453
+>atk12[1]: file: atk12_0001.png; anchor: 626, 688  hitbox: 605, 158, 185, 559
+>atk12[2]: file: atk12_0002.png; anchor: 618, 683  hitbox: 591, 139, 235, 569  hurtbox: 878, 192, 179, 185
+>atk12[3]: file: atk12_0003.png; anchor: 618, 684  hitbox: 578, 138, 238, 558  hurtbox: 878, 212, 167, 130
+>atk12[4]: file: atk12_0004.png; anchor: 617, 684  hitbox: 564, 147, 249, 539  hurtbox: 880, 229, 177, 142
+>atk12[5]: file: atk12_0005.png; anchor: 599, 705  hitbox: 589, 156, 204, 549
+>atk12[6]: file: atk12_0006.png; anchor: 599, 701  hitbox: 590, 158, 196, 556
+>atk12[7]: file: atk12_0007.png; anchor: 616, 684  hitbox: 568, 146, 201, 567
+>atk12[8]: file: atk12_0008.png; anchor: 614, 683  hitbox: 590, 131, 170, 565
+>atk13[0]: file: atk13_0000.png; anchor: 611, 671  hitbox: 539, 151, 209, 529
+>atk13[1]: file: atk13_0001.png; anchor: 605, 671  hitbox: 522, 123, 232, 576
+>atk13[2]: file: atk13_0002.png; anchor: 617, 669  hurtbox: 374, 384, 148, 159  hurtbox: 681, -22, 136, 92  hitbox: 584, 146, 212, 543
+>atk13[3]: file: atk13_0003.png; anchor: 623, 702  hitbox: 572, 147, 130, 569  hurtbox: 729, 425, 203, 200  hurtbox: 413, 23, 148, 167  hurtbox: 708, 31, 105, 140  hurtbox: 425, 292, 86, 172
+>atk13[4]: file: atk13_0004.png; anchor: 605, 696  hitbox: 572, 138, 147, 570  hurtbox: 732, 483, 163, 169  hurtbox: 447, 44, 117, 135
+>atk13[5]: file: atk13_0005.png; anchor: 590, 702  hitbox: 632, 138, 125, 567  hurtbox: 778, 117, 112, 103  hurtbox: 470, 413, 147, 183
+>atk13[6]: file: atk13_0006.png; anchor: 596, 681  hitbox: 610, 114, 139, 575  hurtbox: 453, 380, 102, 91  hurtbox: 840, 229, 97, 129
+>atk13[7]: file: atk13_0007.png; anchor: 616, 672  hitbox: 568, 147, 198, 546
+>atk13[8]: file: atk13_0008.png; anchor: 620, 687  hitbox: 562, 171, 201, 518
+>atk13[9]: file: atk13_0009.png; anchor: 620, 683  hitbox: 559, 168, 197, 530
+>atk14[0]: file: atk14_0000.png; anchor: 571, 679  hitbox: 586, 160, 181, 527
+>atk14[1]: file: atk14_0001.png; anchor: 572, 688  hitbox: 600, 178, 185, 521
+>atk14[2]: file: atk14_0002.png; anchor: 554, 700  hitbox: 449, 140, 284, 537
+>atk14[3]: file: atk14_0003.png; anchor: 552, 698  hitbox: 483, 144, 243, 487
+>atk14[4]: file: atk14_0004.png; anchor: 546, 696  hitbox: 458, 144, 279, 564  hurtbox: 747, 116, 170, 155
+>atk14[5]: file: atk14_0005.png; anchor: 560, 672  hitbox: 670, 202, 215, 480  hurtbox: 985, 189, 286, 392
+>atk14[6]: file: atk14_0006.png; anchor: 562, 669  hitbox: 504, 202, 353, 469  hurtbox: 949, 185, 304, 448
+>atk14[7]: file: atk14_0007.png; anchor: 559, 668  hitbox: 449, 159, 407, 524  hurtbox: 947, 135, 309, 482
+>atk14[8]: file: atk14_0008.png; anchor: 558, 668  hitbox: 462, 202, 406, 493  hurtbox: 965, 177, 292, 431
+>atk14[9]: file: atk14_0009.png; anchor: 606, 679  hitbox: 586, 149, 201, 540  hurtbox: 843, 317, 158, 219
+>atk14[10]: file: atk14_0010.png; anchor: 604, 677  hitbox: 589, 161, 216, 514  hurtbox: 834, 329, 149, 187
+>atk14[11]: file: atk14_0011.png; anchor: 578, 672  hitbox: 561, 147, 196, 528
+>atk14[12]: file: atk14_0012.png; anchor: 578, 669  hitbox: 561, 128, 202, 574
+>atk14[13]: file: atk14_0013.png; anchor: 613, 668  hitbox: 528, 146, 203, 525
+>llaunch[0]: file: landlaunch_0000.png; anchor: 916, 702  hitbox: 456, 304, 486, 334
+>llaunch[1]: file: landlaunch_0001.png; anchor: 926, 680  hitbox: 429, 423, 513, 235
+>llaunch[2]: file: landlaunch_0002.png; anchor: 934, 678  hitbox: 358, 447, 646, 246
+>llaunch[3]: file: landlaunch_0003.png; anchor: 926, 672  hitbox: 390, 392, 621, 245
+>llaunch[4]: file: landlaunch_0004.png; anchor: 928, 674  hitbox: 384, 440, 606, 225
+>llaunch[5]: file: landlaunch_0005.png; anchor: 928, 668  hitbox: 383, 440, 621, 216
+>llaunch[6]: file: landlaunch_0006.png; anchor: 923, 669
+>llaunch[7]: file: landlaunch_0007.png; anchor: 920, 668
+>ground[0]: file: landlaunch_0007.png; anchor: 920, 668
+>ground[1]: file: landlaunch_0007.png; anchor: 920, 668
+>ground[2]: file: landlaunch_0007.png; anchor: 920, 668
+>hlaunch[0]: file: hlaunch_0000.png; anchor: 813, 675  hitbox: 520, 114, 294, 532
+>hlaunch[1]: file: hlaunch_0001.png; anchor: 814, 674  hitbox: 484, 86, 470, 492
+>hlaunch[2]: file: hlaunch_0002.png; anchor: 829, 669  hitbox: 434, 102, 506, 485
+>getup[0]: file: getup_0000.png; anchor: 916, 659
+>getup[1]: file: getup_0001.png; anchor: 887, 656
+>getup[2]: file: getup_0002.png; anchor: 802, 665
+>getup[3]: file: getup_0003.png; anchor: 817, 660
+>getup[4]: file: getup_0004.png; anchor: 817, 659
+>getup[5]: file: getup_0005.png; anchor: 808, 640
+>getup[6]: file: getup_0006.png; anchor: 813, 656
+>getup[7]: file: getup_0007.png; anchor: 813, 652
+>getup[8]: file: getup_0008.png; anchor: 828, 655
+>getup[9]: file: getup_0009.png; anchor: 859, 669
+>adash[0]: file: atkdash_0000.png; anchor: 513, 731  hitbox: 401, 132, 382, 421
+>adash[1]: file: atkdash_0001.png; anchor: 540, 743
+>adash[2]: file: atkdash_0002.png; anchor: 538, 740
+>adash[3]: file: atkdash_0003.png; anchor: 547, 752  hurtbox: 383, 117, 519, 505
+>adash[4]: file: atkdash_0004.png; anchor: 546, 749  hurtbox: 374, 165, 582, 478
+>adash[5]: file: atkdash_0005.png; anchor: 555, 743  hurtbox: 247, -2, 618, 600
+>adash[6]: file: atkdash_0006.png; anchor: 565, 711  hurtbox: 176, 117, 710, 469
+>adash[7]: file: atkdash_0007.png; anchor: 565, 704  hurtbox: 183, 83, 677, 530
+>adash[8]: file: atkdash_0008.png; anchor: 571, 708  hitbox: 350, 185, 413, 481
+>adash[9]: file: atkdash_0009.png; anchor: 566, 701  hitbox: 337, 179, 426, 508
