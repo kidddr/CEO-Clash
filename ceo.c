@@ -691,11 +691,6 @@ int main(int argc, char *argv[]){
     SDL_Texture *Fundo5 = IMG_LoadTexture(R,"Assets/add/add5.png");
     float fundo0w, fundo0h;
     SDL_GetTextureSize(Fundo0, &fundo0w, &fundo0h);
-    SDL_GetTextureSize(Fundo1, &fundo0w, &fundo0h);
-    SDL_GetTextureSize(Fundo2, &fundo0w, &fundo0h);
-    SDL_GetTextureSize(Fundo3, &fundo0w, &fundo0h);
-    SDL_GetTextureSize(Fundo4, &fundo0w, &fundo0h);
-    SDL_GetTextureSize(Fundo5, &fundo0w, &fundo0h);
 
 
     MAPw = fundo0w;
@@ -808,6 +803,9 @@ int main(int argc, char *argv[]){
 
 ///////////////////CAMERA
 
+        vec2d fundosource = reverse_transform_v2d( &v2dzero, &T );
+
+
         float fighters_distx = SDL_fabsf( P1.pos.x - P2.pos.x );
         float fighters_disty = SDL_fabsf( P1.pos.y - P2.pos.y );
 
@@ -822,7 +820,6 @@ int main(int argc, char *argv[]){
         T.ty = FLOOR_Y - (FLOOR_Y * T.invs);
         set_scale ( &T, constrainD(width / (1.2 * fighters_distx), minzoomout, 1) );
 
-        
         //SDL_Log(">>  %lg, %lg, %g", P1.pos.x, P2.pos.x, camx );
 
 ////////////////////
@@ -830,7 +827,7 @@ int main(int argc, char *argv[]){
 
 
 
-        SDL_FRect src_rect = {camx, camy, width * T.invs, height * T.invs};
+        SDL_FRect src_rect = {fundosource.x, fundosource.y, width * T.invs, height * T.invs};
         SDL_RenderTexture( R, Fundo0, &src_rect, NULL );
         SDL_RenderTexture( R, Fundo1, &src_rect, NULL );
         SDL_RenderTexture( R, Fundo2, &src_rect, NULL );
