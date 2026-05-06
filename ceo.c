@@ -680,6 +680,18 @@ int main(int argc, char *argv[]){
     SDL_srand(0);
 
 
+//gamepad =>
+    int gamepad_count = 0;
+    SDL_JoystickID *gamepad_list = SDL_GetGamepads(&gamepad_count);
+    for (int g = 0; g < gamepad_count; ++g ){
+        SDL_Log( "gamepad_list[%d] = %d", g, gamepad_list[g] );
+    }
+
+    if( gamepad_count > 0 ){
+        SDL_OpenGamepad( gamepad_list[0] );
+    }
+
+
 
     //TEXTURAS
 
@@ -749,9 +761,19 @@ int main(int argc, char *argv[]){
                 case SDL_EVENT_QUIT:
                     loop = 0;
                     break;
+
+                case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+                    if( event.gbutton.which == SDL_GAMEPAD_BUTTON_SOUTH ) p1d = 1;
+                break;
+
+                case SDL_EVENT_GAMEPAD_BUTTON_UP:
+                    if( event.gbutton.which == SDL_GAMEPAD_BUTTON_SOUTH ) p1d = 0;
+                break;
+
+
                 case SDL_EVENT_KEY_DOWN:
                          if( event.key.key == 'w' ) p1u = 1;
-                    else if( event.key.key == 's' ) p1d = 1;
+                    //else if( event.key.key == 's' ) p1d = 1;
                     else if( event.key.key == 'a' ) p1l = 1;
                     else if( event.key.key == 'd' ) p1r = 1;
                     else if( event.key.key == 'e' ) p1_A = 1;
@@ -763,22 +785,12 @@ int main(int argc, char *argv[]){
                     else if( event.key.key == SDLK_RIGHT ) p2r = 1;
                     else if( event.key.key == 'm' ) p2_A = 1;
                     else if( event.key.key == 'n') p2_dash = 1;
-                    /*else if( event.key.key == SDLK_SPACE ) {
-                         if (!P1.atacando && P1.ataque_cooldown == 0) {
-                              P1.atacando = true;
-                              P1.ataque_timer = 10; // duração do ataque em frames
-                            }
-                    }
-                    else if( event.key.key == SDLK_RETURN ) {
-                         if (!P2.atacando && P2.ataque_cooldown == 0) {
-                              P2.atacando = true;
-                              P2.ataque_timer = 10;
-                            }
-                    }*/
                     break;
+
+
                 case SDL_EVENT_KEY_UP:
                          if( event.key.key == 'w' ) p1u = 0;
-                    else if( event.key.key == 's' ) p1d = 0;
+                    //else if( event.key.key == 's' ) p1d = 0;
                     else if( event.key.key == 'a' ) p1l = 0;
                     else if( event.key.key == 'd' ) p1r = 0;
                     else if( event.key.key == 'e' ) p1_A = 0;
@@ -814,9 +826,9 @@ int main(int argc, char *argv[]){
         T.tx = camx;
 
         float visible_height = height * T.invs;
-        float camy = floor_world_y - FLOOR_Y * T.invs;
-        if (camy < 0) camy = 0;
-        if (camy > fundo0h - visible_height) camy = fundo0h - visible_height;
+        //float camy = floor_world_y - FLOOR_Y * T.invs;
+        //if (camy < 0) camy = 0;
+        //if (camy > fundo0h - visible_height) camy = fundo0h - visible_height;
         T.ty = FLOOR_Y - (FLOOR_Y * T.invs);
         set_scale ( &T, constrainD(width / (1.2 * fighters_distx), minzoomout, 1) );
 
