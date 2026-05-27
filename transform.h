@@ -7,7 +7,7 @@
 
 typedef struct transform_struct{
 	double tx, ty; // translate
-    int cx, cy;    // center, a secondary translate on top of the scale
+    double cx, cy;    // center, a secondary translate on top of the scale
     double s, invs;// scale, inverse scale
 } Transform;
 
