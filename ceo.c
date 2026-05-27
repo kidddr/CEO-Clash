@@ -65,11 +65,21 @@ typedef struct {
     bool segurar_ground;
 
 
-} 
+} Fighter;
 
 
-Fighter;
+typedef struct SDL_AudioSpec
+{
+    SDL_AudioFormat format;     /**< Audio data format */
+    int channels;               /**< Number of channels: 1 mono, 2 stereo, etc */
+    int freq;                   /**< sample rate: sample frames per second */
+} SDL_AudioSpec;
 
+
+static Uint8 *wav_data = NULL;
+static Uint32 wav_data_len = 0;
+SDL_AudioSpec spec;
+char *wav_path = NULL;
 
 void Load_fighter( SDL_Renderer *R, Fighter *F, char *path ){
 
@@ -347,6 +357,8 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA, b
             break;
 
         case BEATEN:
+
+            SDL_LoadWAV("Assets/hit-som-1.wav", &spec, &wav_data, &wav_data_len);
             
             break;
 
