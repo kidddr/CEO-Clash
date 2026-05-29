@@ -68,18 +68,42 @@ typedef struct {
 } Fighter;
 
 
-typedef struct SDL_AudioSpec
-{
-    SDL_AudioFormat format;     /**< Audio data format */
-    int channels;               /**< Number of channels: 1 mono, 2 stereo, etc */
-    int freq;                   /**< sample rate: sample frames per second */
-} SDL_AudioSpec;
+// ---- SISTEMA DE AUDIO ----
+typedef struct {
+    Uint8  *data;
+    Uint32  len;
+} WavSound;
 
+#define NUM_SONS_LEVE  3
+#define NUM_SONS_FORTE 3
 
-static Uint8 *wav_data = NULL;
-static Uint32 wav_data_len = 0;
-SDL_AudioSpec spec;
-char *wav_path = NULL;
+WavSound snd_hit_leve [NUM_SONS_LEVE]  = {0};
+WavSound snd_hit_forte[NUM_SONS_FORTE] = {0};
+
+SDL_AudioDeviceID audio_device = 0;
+SDL_AudioSpec     audio_spec   = {0};
+SDL_AudioStream  *hit_stream   = NULL;
+
+// Toca um som aleatório do array — corta qualquer som anterior antes
+void play_sound_aleatorio( WavSound *lista, int total ){
+    if( !hit_stream ) return;
+
+    // Filtra só os slots carregados
+    WavSound *validos[NUM_SONS_FORTE > NUM_SONS_LEVE ? NUM_SONS_FORTE : NUM_SONS_LEVE];
+    int n = 0;
+    for( int i = 0; i < total; i++ ){
+        if( lista[i].data && lista[i].len ) validos[n++] = &lista[i];
+    }
+    if( n == 0 ) return;
+
+    WavSound *escolhido = validos[ SDL_rand(n) ];
+
+    // Cancela o som que está tocando antes de colocar o novo
+    SDL_ClearAudioStream( hit_stream );
+
+    SDL_PutAudioStreamData( hit_stream, escolhido->data, (int)escolhido->len );
+}
+// --------------------------
 
 void Load_fighter( SDL_Renderer *R, Fighter *F, char *path ){
 
@@ -357,9 +381,7 @@ void Fighter_control( Fighter *F, bool cu, bool cd, bool cl, bool cr, bool cA, b
             break;
 
         case BEATEN:
-
-            SDL_LoadWAV("Assets/hit-som-1.wav", &spec, &wav_data, &wav_data_len);
-            
+            // Som tocado em fighters_hurt() no momento do impacto
             break;
 
 
@@ -588,10 +610,12 @@ void fighters_hurt( Fighter *attacker, Fighter *defender ){
                     defender->no_controle = false;
                     defender->imunidade = 2; // mantém janela aberta pro próximo HLAUNCH
                     defender->state = HLAUNCH; defender->frame = 0;
+                    play_sound_aleatorio( snd_hit_forte, NUM_SONS_FORTE );
                 } else {
                     defender->imunidade = 1;
                     defender->state = BEATEN; defender->frame = 0;
                     SDL_Log("Ai, me bateu!!");
+                    play_sound_aleatorio( snd_hit_leve, NUM_SONS_LEVE );
                 }
 
                 return;
@@ -749,6 +773,59 @@ int main(int argc, char *argv[]){
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s", SDL_GetError());
         return 3;
     }
+
+    // ---- INICIALIZAÇÃO DE ÁUDIO ----
+    if( !SDL_InitSubSystem(SDL_INIT_AUDIO) ){
+        SDL_Log("Falha ao inicializar subsistema de audio: %s", SDL_GetError());
+    } else {
+        audio_device = SDL_OpenAudioDevice( SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL );
+        if( !audio_device ){
+            SDL_Log("Falha ao abrir dispositivo de audio: %s", SDL_GetError());
+        }
+    }
+
+    // Carrega sons de hit leve: hit-som-1.wav, hit-som-2.wav, hit-som-3.wav
+    for( int i = 0; i < NUM_SONS_LEVE; i++ ){
+        char caminho[256];
+        SDL_AudioSpec wav_spec;
+        Uint8 *tmp_data = NULL; Uint32 tmp_len = 0;
+        SDL_snprintf( caminho, sizeof(caminho), "Assets/Sons de Hit/hit-som-%d.wav", i + 1 );
+        if( SDL_LoadWAV(caminho, &wav_spec, &tmp_data, &tmp_len) ){
+            snd_hit_leve[i].data = tmp_data;
+            snd_hit_leve[i].len  = tmp_len;
+            if( i == 0 ) audio_spec = wav_spec; // salva formato do primeiro
+            SDL_Log("Carregado OK: %s", caminho);
+        } else {
+            SDL_Log("Falha ao carregar %s: %s", caminho, SDL_GetError());
+        }
+    }
+
+    // Carrega sons de hit forte: hit-som-4.wav, hit-som-5.wav, hit-som-6.wav
+    for( int i = 0; i < NUM_SONS_FORTE; i++ ){
+        char caminho[256];
+        SDL_AudioSpec wav_spec;
+        Uint8 *tmp_data = NULL; Uint32 tmp_len = 0;
+        SDL_snprintf( caminho, sizeof(caminho), "Assets/Sons de Hit/hit-som-%d.wav", i + 4 );
+        if( SDL_LoadWAV(caminho, &wav_spec, &tmp_data, &tmp_len) ){
+            snd_hit_forte[i].data = tmp_data;
+            snd_hit_forte[i].len  = tmp_len;
+            SDL_Log("Carregado OK: %s", caminho);
+        } else {
+            SDL_Log("Falha ao carregar %s: %s", caminho, SDL_GetError());
+        }
+    }
+
+    // Cria e vincula o stream de áudio ao dispositivo
+    if( audio_device && audio_spec.freq > 0 ){
+        hit_stream = SDL_CreateAudioStream( &audio_spec, &audio_spec );
+        if( hit_stream ){
+            SDL_BindAudioStream( audio_device, hit_stream );
+            SDL_Log("Audio stream criado e vinculado OK");
+        } else {
+            SDL_Log("Falha ao criar audio stream: %s", SDL_GetError());
+        }
+    }
+    // --------------------------------
 
     if( !SDL_CreateWindowAndRenderer( "CEO_Clash", width, height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED, &window, &R ) ){
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create window and renderer: %s", SDL_GetError());
@@ -1088,6 +1165,13 @@ int main(int argc, char *argv[]){
 
     SDL_DestroyRenderer(R);
     SDL_DestroyWindow(window);
+
+    // ---- LIMPEZA DE ÁUDIO ----
+    if( hit_stream )   SDL_DestroyAudioStream( hit_stream );
+    if( audio_device ) SDL_CloseAudioDevice( audio_device );
+    for( int i = 0; i < NUM_SONS_LEVE;  i++ ) if( snd_hit_leve[i].data  ) SDL_free( snd_hit_leve[i].data );
+    for( int i = 0; i < NUM_SONS_FORTE; i++ ) if( snd_hit_forte[i].data ) SDL_free( snd_hit_forte[i].data );
+    // --------------------------
 
     SDL_Quit();
 
