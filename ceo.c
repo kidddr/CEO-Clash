@@ -7,6 +7,7 @@
 #include "vec2d.h"
 #include "transform.h"
 #include "cvec.h"
+#include "Weather.h"
 
 #define buflen 512
 char buf [buflen];
@@ -769,10 +770,26 @@ int main(int argc, char *argv[]){
     int loop = 1;
 
 
-    if( !SDL_Init(SDL_INIT_VIDEO) ){
+    if( !SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD) ){
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s", SDL_GetError());
         return 3;
     }
+    if( !SDL_CreateWindowAndRenderer( "CEO_Clash", width, height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED, &window, &R ) ){
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create window and renderer: %s", SDL_GetError());
+        return 3;
+    }
+
+    SDL_GetWindowSize( window, &width, &height );
+    cx = width / 2;
+    cy = height / 2;
+
+    SDL_srand(0);
+
+
+
+    Weather_ctx snowflakes;
+    init_Weather (&snowflakes, width, height);
+
 
     // ---- INICIALIZAÇÃO DE ÁUDIO ----
     if( !SDL_InitSubSystem(SDL_INIT_AUDIO) ){
@@ -827,16 +844,7 @@ int main(int argc, char *argv[]){
     }
     // --------------------------------
 
-    if( !SDL_CreateWindowAndRenderer( "CEO_Clash", width, height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED, &window, &R ) ){
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create window and renderer: %s", SDL_GetError());
-        return 3;
-    }
-
-    SDL_GetWindowSize( window, &width, &height );
-    cx = width / 2;
-    cy = height / 2;
-
-    SDL_srand(0);
+    
 
 
 
@@ -868,7 +876,7 @@ int main(int argc, char *argv[]){
     SDL_GetTextureSize(Fundo0, &fundo0w, &fundo0h);
 
 
-    SDL_SetTextureBlendMode(Fundo2, SDL_BLENDMODE_MUL);
+    //SDL_SetTextureBlendMode(Fundo2, SDL_BLENDMODE_MUL);
 
 
     MAPw = fundo0w;
@@ -948,11 +956,21 @@ int main(int argc, char *argv[]){
 
                 //GAMEPAD
                 case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
-                    if( event.gbutton.which == SDL_GAMEPAD_BUTTON_SOUTH ) p1d = 1;
+                         if( event.gbutton.button ==   SDL_GAMEPAD_BUTTON_DPAD_UP ) p1u = 1;   // usar STICK_BUTTON, O analogico do controle, para se movimentar em X e Y?
+                    else if( event.gbutton.button ==  SDL_GAMEPAD_BUTTON_DPAD_DOWN ) p1d = 1;
+                    else if( event.gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_LEFT ) p1l = 1;
+                    else if( event.gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_RIGHT ) p1r = 1;
+                    else if( event.gbutton.button == SDL_GAMEPAD_BUTTON_WEST ) { p1_A = 1; p1_A_combo = 1; }
+                    else if( event.gbutton.button == SDL_GAMEPAD_BUTTON_EAST ) p1_dash = 1;
                 break;
 
                 case SDL_EVENT_GAMEPAD_BUTTON_UP:
-                    if( event.gbutton.which == SDL_GAMEPAD_BUTTON_SOUTH ) p1d = 0;
+                         if( event.gbutton.button ==   SDL_GAMEPAD_BUTTON_DPAD_UP ) p1u = 0;
+                    else if( event.gbutton.button ==  SDL_GAMEPAD_BUTTON_DPAD_DOWN ) p1d = 0;
+                    else if( event.gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_LEFT ) p1l = 0;
+                    else if( event.gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_RIGHT ) p1r = 0;
+                    else if( event.gbutton.button == SDL_GAMEPAD_BUTTON_WEST ) { p1_A = 0; p1_A_combo = 0; }
+                    else if( event.gbutton.button == SDL_GAMEPAD_BUTTON_EAST ) p1_dash = 0;
                 break;
 
 
@@ -1157,6 +1175,7 @@ int main(int argc, char *argv[]){
         SDL_RenderTexture( R, Fundo1, &src_full, &dst_rect );
         SDL_RenderTexture( R, Fundo0, &src_full, &dst_rect );
 
+        draw_Weather(R, &snowflakes, width, height);
         
         SDL_RenderPresent(R);
         SDL_framerateDelay( frame_period );

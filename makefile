@@ -1,6 +1,6 @@
 CC = gcc
 
-OBJS = basics.c vec2d.c transform.c cvec.c ceo.c 
+OBJS = basics.c vec2d.c transform.c cvec.c ceo.c Weather.c 
 
 COMPILER_FLAGS_RELEASE = -w -Wl,-subsystem,windows
 COMPILER_FLAGS_QUICK = -w
