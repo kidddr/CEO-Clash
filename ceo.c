@@ -80,6 +80,8 @@ typedef struct {
 
 WavSound snd_hit_leve [NUM_SONS_LEVE]  = {0};
 WavSound snd_hit_forte[NUM_SONS_FORTE] = {0};
+WavSound snd_ADD = {0};
+
 
 SDL_AudioDeviceID audio_device = 0;
 SDL_AudioSpec     audio_spec   = {0};
@@ -801,7 +803,7 @@ int main(int argc, char *argv[]){
         }
     }
 
-    // Carrega sons de hit leve: hit-som-1.wav, hit-som-2.wav, hit-som-3.wav
+    // Carrega sons de hit leve
     for( int i = 0; i < NUM_SONS_LEVE; i++ ){
         char caminho[256];
         SDL_AudioSpec wav_spec;
@@ -817,7 +819,7 @@ int main(int argc, char *argv[]){
         }
     }
 
-    // Carrega sons de hit forte: hit-som-4.wav, hit-som-5.wav, hit-som-6.wav
+    // Carrega sons de hit forte
     for( int i = 0; i < NUM_SONS_FORTE; i++ ){
         char caminho[256];
         SDL_AudioSpec wav_spec;
@@ -831,6 +833,19 @@ int main(int argc, char *argv[]){
             SDL_Log("Falha ao carregar %s: %s", caminho, SDL_GetError());
         }
     }
+
+
+    /*
+    if( SDL_LoadWAV("Assets/Afluente de dez", &wav_spec, &tmp_data, &tmp_len) ){
+            snd_ADD[i].data = tmp_data;
+            snd_ADD[i].len  = tmp_len;
+            SDL_Log("Carregado OK: %s", caminho);
+        } else {
+            SDL_Log("Falha ao carregar %s: %s", caminho, SDL_GetError());
+        }
+    }
+    */
+
 
     // Cria e vincula o stream de áudio ao dispositivo
     if( audio_device && audio_spec.freq > 0 ){
@@ -864,19 +879,18 @@ int main(int argc, char *argv[]){
 
     //TEXTURAS
 
-    SDL_Texture *Fundo0 = IMG_LoadTexture(R,"Assets/add/add0.png");
-    SDL_Texture *Fundo1 = IMG_LoadTexture(R,"Assets/add/add1.png");
-    SDL_Texture *Fundo2 = IMG_LoadTexture(R,"Assets/add/add2.png");
-    SDL_Texture *Fundo3 = IMG_LoadTexture(R,"Assets/add/add3.png");
-    SDL_Texture *Fundo4 = IMG_LoadTexture(R,"Assets/add/add4 (começa fundo).png");
-    SDL_Texture *Fundo5 = IMG_LoadTexture(R,"Assets/add/add5.png");
-    SDL_Texture *Fundo6 = IMG_LoadTexture(R,"Assets/add/add6.png");
-    SDL_Texture *Fundo7 = IMG_LoadTexture(R,"Assets/add/add7.png");
+    SDL_Texture **FundoTex = SDL_malloc(8 * sizeof (SDL_Texture*));
+
+    FundoTex[0] = IMG_LoadTexture(R,"Assets/add/add0.png");
+    FundoTex[1] = IMG_LoadTexture(R,"Assets/add/add1.png");
+    FundoTex[2] = IMG_LoadTexture(R,"Assets/add/add2.png");
+    FundoTex[3] = IMG_LoadTexture(R,"Assets/add/add3.png");
+    FundoTex[4] = IMG_LoadTexture(R,"Assets/add/add4 (começa fundo).png");
+    FundoTex[5] = IMG_LoadTexture(R,"Assets/add/add5.png");
+    FundoTex[6] = IMG_LoadTexture(R,"Assets/add/add6.png");
+    FundoTex[7] = IMG_LoadTexture(R,"Assets/add/add7.png");
     float fundo0w, fundo0h;
-    SDL_GetTextureSize(Fundo0, &fundo0w, &fundo0h);
-
-
-    //SDL_SetTextureBlendMode(Fundo2, SDL_BLENDMODE_MUL);
+    SDL_GetTextureSize(FundoTex[0], &fundo0w, &fundo0h);
 
 
     MAPw = fundo0w;
@@ -893,6 +907,29 @@ int main(int argc, char *argv[]){
     T = (Transform){0,0,0,0,1,1};
     T.cx = cx;
     T.cy = 0;
+
+
+
+
+   // tx = map(pcx, MAPw, 0, cx, GetTextureSize - cx)
+    //SDL_SetTextureBlendMode(Fundo2, SDL_BLENDMODE_MUL);
+for(int i=0; i < 3; i++){
+     //float Tcx = width / 2;
+     //float Tcy = height/ 2;
+
+    float tw, th;
+    SDL_GetTextureSize(FundoTex[i], &tw, &th);
+
+     float Ttx = map( mouseX, 0, width, Tcx, tw - Tcx );
+     float Tty = Tcy;
+     float Ts = 1;
+     float dstx = Tcx + (Ts * (0 - Ttx));
+     float dsty = Tcy + (Ts * (0 - Tty));
+     //scale( Ts );
+     image( textures[i], dstx, dsty );
+     // RenderTexture( dst{x,y}
+   }
+}
 
 
 
@@ -1032,7 +1069,7 @@ int main(int argc, char *argv[]){
 
         SDL_GetWindowSize( window, &width, &height );
 
-        // ① Escala — maior entre: cobrir a tela em Y, cobrir em X, e zoom pela distância
+        // Escala — maior entre: cobrir a tela em Y, cobrir em X, e zoom pela distância
         float zoom_por_largura = (float)width  / fundo0w;
         float zoom_por_altura  = (float)height / fundo0h;
         float minzoomout = SDL_max( zoom_por_largura, zoom_por_altura );
@@ -1042,7 +1079,7 @@ int main(int argc, char *argv[]){
         float raw_zoom = (float)width / dist_com_margem;
         set_scale( &T, constrainD( raw_zoom, minzoomout, 1.0 ) );
 
-        // ② Posição X com clamp
+        // Posição X com clamp
         float half_view_w = (width  * 0.5f) * T.invs;
         float cam_cx = (P1.pos.x + P2.pos.x) * 0.5f;
         if( cam_cx - half_view_w < 0 )       cam_cx = half_view_w;
@@ -1056,7 +1093,7 @@ int main(int argc, char *argv[]){
         if( left_px > 0 )             T.cx -= left_px;
         if( right_px < (float)width ) T.cx += (float)width - right_px;
 
-        // ③ Posição Y — chão fixo na tela
+        // Posição Y — chão fixo na tela
         T.cy = 0;
         float floor_screen_y = height * 0.82f;
         T.ty = floor_world_y - floor_screen_y * T.invs;
@@ -1094,11 +1131,10 @@ int main(int argc, char *argv[]){
 
 
         //CENARIO
-        // Renderizamos passando a textura INTEIRA como src e um dst_rect com o tamanho
-        // real do mapa na tela. O SDL só corta o que passar da borda — sem distorção.
+        // Renderizamos passando a textura INTEIRA como src e um dst_rect com o tamanho real do mapa na tela. Corta a borda 
         float map_screen_h = fundo0h * T.s;  // altura do mapa em pixels de tela
         // Quando map_screen_w < width, o mapa é menor que a tela.
-        // Centralizamos o dst_rect horizontalmente para não mostrar espaço cinza.
+        // Centralizamos o dst_rect horizontalmente para não mostrar o vazio.
         float map_screen_x = (float)atfX( 0, &T );
         float map_screen_y = (float)atfY( 0, &T );
         float map_screen_w = fundo0w * T.s;
